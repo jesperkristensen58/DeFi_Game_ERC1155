@@ -204,7 +204,7 @@ function Home({ yourLocalBalance, readContracts }) {
             <Col span={4}>
               {checkedList.length >= 2 ?
                 <Button block size="large" shape="round" style={{fontFamily: "futura"}} icon={<FireTwoTone />}>Forge!</Button>
-              : null
+              : <Button block size="large" shape="round" style={{fontFamily: "futura"}} disabled>Forge!</Button>
               }
             </Col>
             <Col span={10}></Col>

@@ -35,8 +35,6 @@ export default function Balance(props) {
   let floatBalance = parseFloat("0.00");
   let usingBalance = balance;
 
-  let networkname = props.networkname;
-
   if (typeof props.balance !== "undefined") usingBalance = props.balance;
   if (typeof props.value !== "undefined") usingBalance = props.value;
 

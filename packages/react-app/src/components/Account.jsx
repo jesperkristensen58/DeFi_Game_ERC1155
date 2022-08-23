@@ -68,22 +68,7 @@ export default function Account({
 
   const display = !minimized && (
     <span>
-      {/* {address && (
-        <Address address={address} ensProvider={mainnetProvider} blockExplorer={blockExplorer} fontSize={20} />
-      )} */}
       <Balance address={address} provider={localProvider} price={price} size={16} networkname={networkname} connected={connected} />
-      {/* {!isContract && connected && (
-        <Wallet
-          address={address}
-          provider={localProvider}
-          signer={userSigner}
-          ensProvider={mainnetProvider}
-          price={price}
-          color={currentTheme === "light" ? "#1890ff" : "#2caad9"}
-          size={22}
-          padding={"0px"}
-        />
-      )} */}
     </span>
   );
 
@@ -91,10 +76,10 @@ export default function Account({
     <div>
       {display}
       {web3Modal && (accountButtonInfo.name == "Logout" ? (
-        <Button style={{ marginLeft: 12 }} shape="round" onClick={accountButtonInfo.action} danger icon={<PoweroffOutlined />}>
+        <Button style={{ marginLeft: 12 }} ghost shape="round" onClick={accountButtonInfo.action} danger icon={<PoweroffOutlined />}>
         </Button>
       ) : (
-        <Button style={{ marginLeft: 12 }} shape="round" onClick={accountButtonInfo.action} icon={<PlayCircleOutlined />}>
+        <Button style={{ marginLeft: 12 }} ghost shape="round" onClick={accountButtonInfo.action} icon={<PlayCircleOutlined />}>
           {accountButtonInfo.name}
         </Button>
       ))}

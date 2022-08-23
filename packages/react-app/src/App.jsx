@@ -284,7 +284,6 @@ function App(props) {
               useBurner={USE_BURNER_WALLET}
               address={address}
               localProvider={localProvider}
-              networkname={selectedChainId && localChainId == selectedChainId ? `You are connected to ${selectedNetwork}.` : ""}
               connected={selectedChainId && localChainId == selectedChainId}
               userSigner={userSigner}
               mainnetProvider={mainnetProvider}
