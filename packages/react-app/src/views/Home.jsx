@@ -1,11 +1,12 @@
 import { useContractReader } from "eth-hooks";
 import { ethers } from "ethers";
-import React from "react";
+import { React, useState} from "react";
 import { Link } from "react-router-dom";
-import { Col, Row, Divider, Typography, Avatar, Space, Button, Card, Image } from "antd";
-import { UserOutlined } from '@ant-design/icons';
+import { Col, Row, Divider, Typography, Avatar, Space, Button, Card, Image, Checkbox } from "antd";
+import { FireTwoTone } from '@ant-design/icons';
 
-const ButtonGroup = Button.Group;
+const defaultCheckedList = [];
+
 const { Title } = Typography;
 
 /**
@@ -17,30 +18,41 @@ const { Title } = Typography;
 function Home({ yourLocalBalance, readContracts }) {
   // you can also use hooks locally in your component of choice
   // in this case, let's keep track of 'purpose' variable from our contract
-  const purpose = useContractReader(readContracts, "YourContract", "purpose");
+  const purpose = useContractReader(readContracts, "YourContract", "purpose")
+
+  const showthecard = true; // these variables would come from the contract... do we own any wood etc.?
+
+  const [checkedList, setCheckedList] = useState(defaultCheckedList);
+
+  const onChange = (checkedValues) => {
+    console.log('checked = ', checkedValues);
+    setCheckedList(checkedValues);
+  };
 
   return (
     <>
-      <Row style={{margin: 12}}>
+      <Row style={{margin: 12}} gutter={[16, 16]}>
         <Col span={8}>
           
         <Space direction="vertical" size="middle" align="center">
           <Card
             hoverable
-            bordered={false}
-            style={{ width: 300 }}
+            style={{ width: 300, borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}
+            bordered={true}
+            bodyStyle={{ backgroundColor: "#787276" }}
             cover={<Image
               width={300}
-              src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png?x-oss-process=image/blur,r_50,s_50/quality,q_1/resize,m_mfit,h_200,w_200"
+              style={{ borderRadius: "10px" }}
+              src="https://images.squarespace-cdn.com/content/v1/571079941bbee00fd7f0470f/1534799119980-PRY9DCBYV547AHYIOBSH/Iron+%284%29.JPG?format=2500w"
               preview={{
-                src: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+                src: 'https://images.squarespace-cdn.com/content/v1/571079941bbee00fd7f0470f/1534799119980-PRY9DCBYV547AHYIOBSH/Iron+%284%29.JPG?format=2500w',
               }}
             />}
           >
             <Row>
-                <p>
+                <p style={{color: "white", fontFamily: "futura" }}>
                   <Button block size="medium" style={{margin: 2}}>Mint this</Button>
-                  <Button block size="medium" style={{margin: 2}}>Trade for this</Button>
+                  <Button block size="medium" style={{margin: 2}}>Trade for this</Button>  
                   Total Supply: 10
                 </p>
               </Row>
@@ -51,19 +63,20 @@ function Home({ yourLocalBalance, readContracts }) {
         <Col span={8}>
         <Space direction="vertical" size="middle" align="center">
           <Card
-            hoverable
-            bordered={false}
-            style={{ width: 300 }}
+            bordered={true}
+            style={{ width: 300, borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}
+            bodyStyle={{ backgroundColor: "#787276" }}
             cover={<Image
               width={300}
-              src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png?x-oss-process=image/blur,r_50,s_50/quality,q_1/resize,m_mfit,h_200,w_200"
+              style={{ borderRadius: "10px" }}
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Glassy_carbon_and_a_1cm3_graphite_cube_HP68-79.jpg/2880px-Glassy_carbon_and_a_1cm3_graphite_cube_HP68-79.jpg"
               preview={{
-                src: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+                src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Glassy_carbon_and_a_1cm3_graphite_cube_HP68-79.jpg/2880px-Glassy_carbon_and_a_1cm3_graphite_cube_HP68-79.jpg',
               }}
             />}
           >
             <Row>
-                <p>
+              <p style={{color: "white", fontFamily: "futura" }}>
                   <Button block size="medium" style={{margin: 2}}>Mint this</Button>
                   <Button block size="medium" style={{margin: 2}}>Trade for this</Button>
                   Total Supply: 8
@@ -76,18 +89,22 @@ function Home({ yourLocalBalance, readContracts }) {
         <Space direction="vertical" size="middle" align="center">
         <Card
             hoverable
-            bordered={false}
-            style={{ width: 300 }}
-            cover={<Image
-              width={300}
-              src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png?x-oss-process=image/blur,r_50,s_50/quality,q_1/resize,m_mfit,h_200,w_200"
-              preview={{
-                src: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-              }}
-            />}
+            bordered={true}
+            style={{ width: 300, borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}
+            bodyStyle={{ backgroundColor: "#787276" }}
+            cover={
+              <Image
+                width={300}
+                style={{ borderRadius: "10px" }}
+                src="https://upload.wikimedia.org/wikipedia/commons/7/76/Green_wood_visual_comparison.jpg"
+                preview={{
+                  src: 'https://upload.wikimedia.org/wikipedia/commons/7/76/Green_wood_visual_comparison.jpg',
+                }}
+              />
+            }
           >
             <Row>
-                <p>
+              <p style={{color: "white", fontFamily: "futura" }}>
                 <Button block size="medium" style={{margin: 2}}>Mint this</Button>
                 <Button block size="medium" style={{margin: 2}}>Trade for this</Button>
                 Total Supply: 6
@@ -100,14 +117,102 @@ function Home({ yourLocalBalance, readContracts }) {
       <Row>
         <Divider/>
       </Row>
-      <Row>
+      <Row gutter={[16, 16]}>
         <Col span={12}>
-          <Title level={4}>Your NFTs</Title>
+          
+          <Title level={4} style={{ color: "white", fontFamily: "futura" }}>Your NFTs</Title>
+          <Title level={5} style={{ color: "white", fontFamily: "futura" }}>Select two or more to forge weaponry</Title>
+          
+          <Checkbox.Group onChange={onChange}>
+          <Row gutter={[16, 16]}>
+          
+          <Space>
+          <Col span={8}>
+            <Card
+              hoverable
+              style={{ width: 200, borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}
+              bordered={true}
+              bodyStyle={{ backgroundColor: "#787276" }}
+              cover={<Image
+                width={200}
+                style={{ borderRadius: "10px" }}
+                src="https://images.squarespace-cdn.com/content/v1/571079941bbee00fd7f0470f/1534799119980-PRY9DCBYV547AHYIOBSH/Iron+%284%29.JPG?format=2500w"
+                preview={{
+                  src: 'https://images.squarespace-cdn.com/content/v1/571079941bbee00fd7f0470f/1534799119980-PRY9DCBYV547AHYIOBSH/Iron+%284%29.JPG?format=2500w',
+                }}
+              />}
+            >
+              <Row>
+                  <p style={{color: "white", fontFamily: "futura" }}>
+                    <Checkbox value="0" style={{color: "white", fontFamily: "futura"}}>Add Iron</Checkbox>
+                  </p>
+                </Row>
+            </Card>
+          </Col>
+          <Col span={8}>
+            {showthecard ?
+            <Card
+              hoverable
+              style={{ width: 200, borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}
+              bordered={true}
+              bodyStyle={{ backgroundColor: "#787276" }}
+              cover={<Image
+                width={200}
+                style={{ borderRadius: "10px" }}
+                src="https://images.squarespace-cdn.com/content/v1/571079941bbee00fd7f0470f/1534799119980-PRY9DCBYV547AHYIOBSH/Iron+%284%29.JPG?format=2500w"
+                preview={{
+                  src: 'https://images.squarespace-cdn.com/content/v1/571079941bbee00fd7f0470f/1534799119980-PRY9DCBYV547AHYIOBSH/Iron+%284%29.JPG?format=2500w',
+                }}
+              />}
+            >
+              <Row>
+                  <p style={{color: "white", fontFamily: "futura" }}>
+                  <Checkbox value="1" style={{color: "white", fontFamily: "futura"}}>Add Carbon</Checkbox>
+                  </p>
+                </Row>
+            </Card>
+            : null}
+          </Col>
+          <Col span={8}>
+            <Card
+              hoverable
+              style={{ width: 200, borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}
+              bordered={true}
+              bodyStyle={{ backgroundColor: "#787276" }}
+              cover={<Image
+                width={200}
+                style={{ borderRadius: "10px" }}
+                src="https://images.squarespace-cdn.com/content/v1/571079941bbee00fd7f0470f/1534799119980-PRY9DCBYV547AHYIOBSH/Iron+%284%29.JPG?format=2500w"
+                preview={{
+                  src: 'https://images.squarespace-cdn.com/content/v1/571079941bbee00fd7f0470f/1534799119980-PRY9DCBYV547AHYIOBSH/Iron+%284%29.JPG?format=2500w',
+                }}
+              />}
+            >
+              <Row>
+                  <p style={{color: "white", fontFamily: "futura" }}>
+                    <Checkbox value="2" style={{color: "white", fontFamily: "futura"}}>Add Wood</Checkbox>
+                  </p>
+                </Row>
+            </Card>
+          </Col>
+          </Space>
+          </Row>
+          </Checkbox.Group>
 
-          <Title level={5}>Select two or more to forge!</Title>
+          <Row style={{margin: 12}}>
+            <Col span={10}></Col>
+            <Col span={4}>
+              {checkedList.length >= 2 ?
+                <Button block size="large" shape="round" style={{fontFamily: "futura"}} icon={<FireTwoTone />}>Forge!</Button>
+              : null
+              }
+            </Col>
+            <Col span={10}></Col>
+          </Row>
+          
         </Col>
         <Col span={12}>
-          <Title level={4}>Your Forged NFTs</Title>
+          <Title level={4} style={{ color: "white", fontFamily: "futura" }}>Your Forged NFTs</Title>
           {new Array(4).fill(null).map((_, index) => (
             // eslint-disable-next-line react/no-array-index-key
             <Button key={index}>Button</Button>

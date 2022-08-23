@@ -58,7 +58,8 @@ export default function Balance(props) {
       style={{
         verticalAlign: "middle",
         fontSize: props.size,
-        color: "black"
+        color: "white",
+        fontFamily: "futura"
       }}
     >
       {balanceToShow}

@@ -1,6 +1,14 @@
 .App {
   text-align: center;
-  /* background-image: url("images/empires.jpeg"); */
+  /* background-image: url("images/background2.jpg"); */
   /* background-color: rgb(202, 183, 183); */
   /* background-size: cover; */
+}
+
+body { 
+  background: url(images/background2.jpg) no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
 }
