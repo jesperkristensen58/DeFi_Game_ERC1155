@@ -98,15 +98,20 @@ function Home({ yourLocalBalance, readContracts }) {
         </Col>
       </Row>
       <Row>
-        <Divider plain></Divider>
+        <Divider/>
       </Row>
       <Row>
         <Col span={12}>
           <Title level={4}>Your NFTs</Title>
+
           <Title level={5}>Select two or more to forge!</Title>
         </Col>
         <Col span={12}>
           <Title level={4}>Your Forged NFTs</Title>
+          {new Array(4).fill(null).map((_, index) => (
+            // eslint-disable-next-line react/no-array-index-key
+            <Button key={index}>Button</Button>
+          ))}
         </Col>
       </Row>
     </>
