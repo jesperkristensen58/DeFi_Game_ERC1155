@@ -71,7 +71,7 @@ export default function Account({
       {/* {address && (
         <Address address={address} ensProvider={mainnetProvider} blockExplorer={blockExplorer} fontSize={20} />
       )} */}
-      <Balance address={address} provider={localProvider} price={price} size={20} networkname={networkname} connected={connected} />
+      <Balance address={address} provider={localProvider} price={price} size={16} networkname={networkname} connected={connected} />
       {/* {!isContract && connected && (
         <Wallet
           address={address}
@@ -88,13 +88,13 @@ export default function Account({
   );
 
   return (
-    <div style={{ display: "flex" }}>
+    <div>
       {display}
       {web3Modal && (accountButtonInfo.name == "Logout" ? (
-        <Button style={{ marginLeft: 8 }} shape="round" onClick={accountButtonInfo.action} danger icon={<PoweroffOutlined />}>
+        <Button style={{ marginLeft: 12 }} shape="round" onClick={accountButtonInfo.action} danger icon={<PoweroffOutlined />}>
         </Button>
       ) : (
-        <Button style={{ marginLeft: 8 }} shape="round" onClick={accountButtonInfo.action} icon={<PlayCircleOutlined />}>
+        <Button style={{ marginLeft: 12 }} shape="round" onClick={accountButtonInfo.action} icon={<PlayCircleOutlined />}>
           {accountButtonInfo.name}
         </Button>
       ))}

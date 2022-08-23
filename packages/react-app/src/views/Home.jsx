@@ -2,6 +2,11 @@ import { useContractReader } from "eth-hooks";
 import { ethers } from "ethers";
 import React from "react";
 import { Link } from "react-router-dom";
+import { Col, Row, Divider, Typography, Avatar, Space, Button, Card, Image } from "antd";
+import { UserOutlined } from '@ant-design/icons';
+
+const ButtonGroup = Button.Group;
+const { Title } = Typography;
 
 /**
  * web3 props can be passed from '../App.jsx' into your local view component for use
@@ -15,109 +20,96 @@ function Home({ yourLocalBalance, readContracts }) {
   const purpose = useContractReader(readContracts, "YourContract", "purpose");
 
   return (
-    <div>
-      <div style={{ margin: 32 }}>
-        <span style={{ marginRight: 8 }}>📝</span>
-        This Is Your App Home. You can start editing it in{" "}
-        <span
-          className="highlight"
-          style={{ marginLeft: 4, /* backgroundColor: "#f9f9f9", */ padding: 4, borderRadius: 4, fontWeight: "bolder" }}
-        >
-          packages/react-app/src/views/Home.jsx
-        </span>
-      </div>
-      <div style={{ margin: 32 }}>
-        <span style={{ marginRight: 8 }}>✏️</span>
-        Edit your smart contract{" "}
-        <span
-          className="highlight"
-          style={{ marginLeft: 4, /* backgroundColor: "#f9f9f9", */ padding: 4, borderRadius: 4, fontWeight: "bolder" }}
-        >
-          YourContract.sol
-        </span>{" "}
-        in{" "}
-        <span
-          className="highlight"
-          style={{ marginLeft: 4, /* backgroundColor: "#f9f9f9", */ padding: 4, borderRadius: 4, fontWeight: "bolder" }}
-        >
-          packages/hardhat/contracts
-        </span>
-      </div>
-      {!purpose ? (
-        <div style={{ margin: 32 }}>
-          <span style={{ marginRight: 8 }}>👷‍♀️</span>
-          You haven't deployed your contract yet, run
-          <span
-            className="highlight"
-            style={{
-              marginLeft: 4,
-              /* backgroundColor: "#f9f9f9", */ padding: 4,
-              borderRadius: 4,
-              fontWeight: "bolder",
-            }}
+    <>
+      <Row style={{margin: 12}}>
+        <Col span={8}>
+          
+        <Space direction="vertical" size="middle" align="center">
+          <Card
+            hoverable
+            bordered={false}
+            style={{ width: 300 }}
+            cover={<Image
+              width={300}
+              src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png?x-oss-process=image/blur,r_50,s_50/quality,q_1/resize,m_mfit,h_200,w_200"
+              preview={{
+                src: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+              }}
+            />}
           >
-            yarn chain
-          </span>{" "}
-          and{" "}
-          <span
-            className="highlight"
-            style={{
-              marginLeft: 4,
-              /* backgroundColor: "#f9f9f9", */ padding: 4,
-              borderRadius: 4,
-              fontWeight: "bolder",
-            }}
+            <Row>
+                <p>
+                  <Button block size="medium" style={{margin: 2}}>Mint this</Button>
+                  <Button block size="medium" style={{margin: 2}}>Trade for this</Button>
+                  Total Supply: 10
+                </p>
+              </Row>
+          </Card>
+        </Space>
+          
+        </Col>
+        <Col span={8}>
+        <Space direction="vertical" size="middle" align="center">
+          <Card
+            hoverable
+            bordered={false}
+            style={{ width: 300 }}
+            cover={<Image
+              width={300}
+              src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png?x-oss-process=image/blur,r_50,s_50/quality,q_1/resize,m_mfit,h_200,w_200"
+              preview={{
+                src: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+              }}
+            />}
           >
-            yarn deploy
-          </span>{" "}
-          to deploy your first contract!
-        </div>
-      ) : (
-        <div style={{ margin: 32 }}>
-          <span style={{ marginRight: 8 }}>🤓</span>
-          The "purpose" variable from your contract is{" "}
-          <span
-            className="highlight"
-            style={{
-              marginLeft: 4,
-              /* backgroundColor: "#f9f9f9", */ padding: 4,
-              borderRadius: 4,
-              fontWeight: "bolder",
-            }}
+            <Row>
+                <p>
+                  <Button block size="medium" style={{margin: 2}}>Mint this</Button>
+                  <Button block size="medium" style={{margin: 2}}>Trade for this</Button>
+                  Total Supply: 8
+                </p>
+              </Row>
+          </Card>
+        </Space>
+        </Col>
+        <Col span={8}>
+        <Space direction="vertical" size="middle" align="center">
+        <Card
+            hoverable
+            bordered={false}
+            style={{ width: 300 }}
+            cover={<Image
+              width={300}
+              src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png?x-oss-process=image/blur,r_50,s_50/quality,q_1/resize,m_mfit,h_200,w_200"
+              preview={{
+                src: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+              }}
+            />}
           >
-            {purpose}
-          </span>
-        </div>
-      )}
-
-      <div style={{ margin: 32 }}>
-        <span style={{ marginRight: 8 }}>🤖</span>
-        An example prop of your balance{" "}
-        <span style={{ fontWeight: "bold", color: "green" }}>({ethers.utils.formatEther(yourLocalBalance)})</span> was
-        passed into the
-        <span
-          className="highlight"
-          style={{ marginLeft: 4, /* backgroundColor: "#f9f9f9", */ padding: 4, borderRadius: 4, fontWeight: "bolder" }}
-        >
-          Home.jsx
-        </span>{" "}
-        component from
-        <span
-          className="highlight"
-          style={{ marginLeft: 4, /* backgroundColor: "#f9f9f9", */ padding: 4, borderRadius: 4, fontWeight: "bolder" }}
-        >
-          App.jsx
-        </span>
-      </div>
-      <div style={{ margin: 32 }}>
-        <span style={{ marginRight: 8 }}>💭</span>
-        Check out the <Link to="/hints">"Hints"</Link> tab for more tips.
-      </div>
-      <div style={{ margin: 32 }}>
-        <span style={{ marginRight: 8 }}>🛠</span>
-        Tinker with your smart contract using the <Link to="/debug">"Debug Contract"</Link> tab.
-      </div>
-    </div>
+            <Row>
+                <p>
+                <Button block size="medium" style={{margin: 2}}>Mint this</Button>
+                <Button block size="medium" style={{margin: 2}}>Trade for this</Button>
+                Total Supply: 6
+                </p>
+              </Row>
+          </Card>
+        </Space>
+        </Col>
+      </Row>
+      <Row>
+        <Divider plain></Divider>
+      </Row>
+      <Row>
+        <Col span={12}>
+          <Title level={4}>Your NFTs</Title>
+          <Title level={5}>Select two or more to forge!</Title>
+        </Col>
+        <Col span={12}>
+          <Title level={4}>Your Forged NFTs</Title>
+        </Col>
+      </Row>
+    </>
   );
 }
 
