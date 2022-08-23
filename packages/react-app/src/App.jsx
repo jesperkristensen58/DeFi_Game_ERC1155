@@ -249,31 +249,6 @@ function App(props) {
 
   return (
     <div className="App">
-      
-      {/* if (NETWORKCHECK && localChainId && selectedChainId && localChainId !== selectedChainId) {
-    
-        if (selectedChainId === 1337 && localChainId === 31337) {
-          // <Modal
-          //   title="Vertically centered modal dialog"
-          //   centered
-          //   visible={true}
-          //   // onOk={() => setModal2Visible(false)}
-          //   // onCancel={() => setModal2Visible(false)}
-          // >
-          //   <p>some contents...</p>
-          // </Modal>
-        } else {
-          <Modal
-            title="Vertically centered modal dialog"
-            centered
-            // visible={true}
-            // onOk={() => setModal2Visible(false)}
-            // onCancel={() => setModal2Visible(false)}
-          >
-            <p>some contents...</p>
-          </Modal>
-        } */}
-
 
       {/* ✏️ Edit the header and change the title to your project name */}
       <Header>

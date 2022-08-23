@@ -3,32 +3,6 @@ import { useBalance } from "eth-hooks";
 
 const { utils } = require("ethers");
 
-/** 
-  ~ What it does? ~
-
-  Displays a balance of given address in ether & dollar
-
-  ~ How can I use? ~
-
-  <Balance
-    address={address}
-    provider={mainnetProvider}
-    price={price}
-  />
-
-  ~ If you already have the balance as a bignumber ~
-  <Balance
-    balance={balance}
-    price={price}
-  />
-
-  ~ Features ~
-
-  - Provide address={address} and get balance corresponding to given address
-  - Provide provider={mainnetProvider} to access balance on mainnet or any other network (ex. localProvider)
-  - Provide price={price} of ether and get your balance converted to dollars
-**/
-
 export default function Balance(props) {
 
   const balance = useBalance(props.provider, props.address);
