@@ -1,0 +1,8 @@
+{
+	"name": "Shield",
+	"description": "a broad piece of armor, varying widely in form and size, carried apart from the body, usually on the left arm, as a defense against swords and crossbows",
+	"image": "ipfs://QmcWrgVBPpAURR3jjcYoBGsa1UT7trG7Ze6DfGaEvMAebm/3.jpeg",
+	"properties": {
+		"mintable": "false"
+	}
+}

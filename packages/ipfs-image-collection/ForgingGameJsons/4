@@ -1,0 +1,8 @@
+{
+	"name": "Crossbow",
+	"description": "A crossbow is a ranged weapon using an elastic launching device consisting of a bow-like assembly called a prod, mounted horizontally on a main frame called a tiller, which is hand-held in a similar fashion to the stock of a long firearm. Crossbows shoot arrow-like projectiles called bolts or quarrels.",
+	"image": "ipfs://QmcWrgVBPpAURR3jjcYoBGsa1UT7trG7Ze6DfGaEvMAebm/4.jpeg",
+	"properties": {
+		"mintable": "false"
+	}
+}

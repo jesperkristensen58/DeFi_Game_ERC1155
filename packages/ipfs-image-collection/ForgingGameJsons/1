@@ -1,0 +1,8 @@
+{
+	"name": "Carbon",
+	"description": "Carbon is a chemical element with the symbol C and atomic number 6. It is nonmetallic and tetravalent—its atom making four electrons available to form covalent chemical bonds. It belongs to group 14 of the periodic table. Carbon makes up only about 0.025 percent of Earth's crust.",
+	"image": "ipfs://QmcWrgVBPpAURR3jjcYoBGsa1UT7trG7Ze6DfGaEvMAebm/1.jpeg",
+	"properties": {
+		"mintable": "true"
+	}
+}

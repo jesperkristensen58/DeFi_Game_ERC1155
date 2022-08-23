@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 import { React, useState} from "react";
 import { Link } from "react-router-dom";
 import { Col, Row, Divider, Typography, Avatar, Space, Button, Card, Image, Checkbox } from "antd";
-import { FireTwoTone } from '@ant-design/icons';
+import { FireTwoTone, PlusCircleOutlined } from '@ant-design/icons';
 
 const defaultCheckedList = [];
 
@@ -120,8 +120,8 @@ function Home({ yourLocalBalance, readContracts }) {
       <Row gutter={[16, 16]}>
         <Col span={12}>
           
-          <Title level={4} style={{ color: "white", fontFamily: "futura" }}>Your NFTs</Title>
-          <Title level={5} style={{ color: "white", fontFamily: "futura" }}>Select two or more to forge weaponry</Title>
+          <Title level={4} style={{ color: "white", fontFamily: "futura" }}>Your Elements</Title>
+          <Title level={5} style={{ color: "white", fontFamily: "futura" }}>Select two or more elements to forge weaponry</Title>
           
           <Checkbox.Group onChange={onChange}>
           <Row gutter={[16, 16]}>
@@ -144,7 +144,7 @@ function Home({ yourLocalBalance, readContracts }) {
             >
               <Row>
                   <p style={{color: "white", fontFamily: "futura" }}>
-                    <Checkbox value="0" style={{color: "white", fontFamily: "futura"}}>Add Iron</Checkbox>
+                    <Checkbox value="0" style={{color: "white", fontFamily: "futura"}}>Iron</Checkbox>
                   </p>
                 </Row>
             </Card>
@@ -167,7 +167,7 @@ function Home({ yourLocalBalance, readContracts }) {
             >
               <Row>
                   <p style={{color: "white", fontFamily: "futura" }}>
-                  <Checkbox value="1" style={{color: "white", fontFamily: "futura"}}>Add Carbon</Checkbox>
+                  <Checkbox value="1" style={{color: "white", fontFamily: "futura"}}>Carbon</Checkbox>
                   </p>
                 </Row>
             </Card>
@@ -190,10 +190,11 @@ function Home({ yourLocalBalance, readContracts }) {
             >
               <Row>
                   <p style={{color: "white", fontFamily: "futura" }}>
-                    <Checkbox value="2" style={{color: "white", fontFamily: "futura"}}>Add Wood</Checkbox>
+                    <Checkbox value="2" style={{color: "white", fontFamily: "futura"}}>Wood</Checkbox>
                   </p>
                 </Row>
             </Card>
+
           </Col>
           </Space>
           </Row>
@@ -201,18 +202,29 @@ function Home({ yourLocalBalance, readContracts }) {
 
           <Row style={{margin: 12}}>
             <Col span={10}></Col>
-            <Col span={4}>
+            
               {checkedList.length >= 2 ?
-                <Button block size="large" shape="round" style={{fontFamily: "futura"}} icon={<FireTwoTone />}>Forge!</Button>
-              : <Button block size="large" shape="round" style={{fontFamily: "futura"}} disabled>Forge!</Button>
+              <>
+                <Col flex="100px">
+                  <Button block size="large" shape="round" style={{fontFamily: "futura"}} icon={<FireTwoTone twoToneColor="#ff9a00" />}>Forge!</Button>
+                </Col>
+                <Col flex="auto"></Col>
+                </>
+              :
+              <>
+              <Col flex="100px">
+                <Button block size="large" shape="round" style={{fontFamily: "futura"}} disabled>choose elements</Button>
+              </Col>
+              <Col flex="auto"></Col>
+              </>
               }
-            </Col>
-            <Col span={10}></Col>
+            
+            
           </Row>
           
         </Col>
         <Col span={12}>
-          <Title level={4} style={{ color: "white", fontFamily: "futura" }}>Your Forged NFTs</Title>
+          <Title level={4} style={{ color: "white", fontFamily: "futura" }}>Your Forged Weaponry</Title>
           {new Array(4).fill(null).map((_, index) => (
             // eslint-disable-next-line react/no-array-index-key
             <Button key={index}>Button</Button>

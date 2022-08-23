@@ -1,0 +1,8 @@
+{
+	"name": "Bolt",
+	"description": "A bolt or quarrel is a dart-like projectile used by crossbows. The name quarrel is derived from the French word carré, meaning square, referring to their typically square heads. Although their lengths vary, bolts are typically shorter and heavier than traditional arrows shot with longbows.",
+	"image": "ipfs://QmcWrgVBPpAURR3jjcYoBGsa1UT7trG7Ze6DfGaEvMAebm/5.jpeg",
+	"properties": {
+		"mintable": "false"
+	}
+}

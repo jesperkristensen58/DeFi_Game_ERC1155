@@ -1,0 +1,8 @@
+{
+	"name": "Sword",
+	"description": "Preeminent hand weapon through a long period of history. It consists of a metal blade varying in length, breadth, and configuration but longer than a dagger and fitted with a handle or hilt usually equipped with a guard. The sword became differentiated from the dagger during the Bronze Age.",
+	"image": "ipfs://QmcWrgVBPpAURR3jjcYoBGsa1UT7trG7Ze6DfGaEvMAebm/6.jpeg",
+	"properties": {
+		"mintable": "false"
+	}
+}
