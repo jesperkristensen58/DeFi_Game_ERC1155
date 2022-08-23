@@ -1,6 +1,7 @@
 import { Button } from "antd";
 import React from "react";
 import { useThemeSwitcher } from "react-css-theme-switcher";
+import { PoweroffOutlined, PlayCircleOutlined } from '@ant-design/icons';
 
 import Address from "./Address";
 import Balance from "./Balance";
@@ -45,6 +46,8 @@ export default function Account({
   address,
   userSigner,
   localProvider,
+  networkname,
+  connected,
   mainnetProvider,
   price,
   minimized,
@@ -58,18 +61,18 @@ export default function Account({
 
   let accountButtonInfo;
   if (web3Modal?.cachedProvider) {
-    accountButtonInfo = { name: "Logout", action: logoutOfWeb3Modal };
+    accountButtonInfo = { name: "Logout", action: logoutOfWeb3Modal, mode: "danger" };
   } else {
-    accountButtonInfo = { name: "Connect", action: loadWeb3Modal };
+    accountButtonInfo = { name: "Connect", action: loadWeb3Modal, mode: "" };
   }
 
   const display = !minimized && (
     <span>
-      {address && (
+      {/* {address && (
         <Address address={address} ensProvider={mainnetProvider} blockExplorer={blockExplorer} fontSize={20} />
-      )}
-      <Balance address={address} provider={localProvider} price={price} size={20} />
-      {!isContract && (
+      )} */}
+      <Balance address={address} provider={localProvider} price={price} size={20} networkname={networkname} connected={connected} />
+      {/* {!isContract && connected && (
         <Wallet
           address={address}
           provider={localProvider}
@@ -80,18 +83,21 @@ export default function Account({
           size={22}
           padding={"0px"}
         />
-      )}
+      )} */}
     </span>
   );
 
   return (
     <div style={{ display: "flex" }}>
       {display}
-      {web3Modal && (
-        <Button style={{ marginLeft: 8 }} shape="round" onClick={accountButtonInfo.action}>
+      {web3Modal && (accountButtonInfo.name == "Logout" ? (
+        <Button style={{ marginLeft: 8 }} shape="round" onClick={accountButtonInfo.action} danger icon={<PoweroffOutlined />}>
+        </Button>
+      ) : (
+        <Button style={{ marginLeft: 8 }} shape="round" onClick={accountButtonInfo.action} icon={<PlayCircleOutlined />}>
           {accountButtonInfo.name}
         </Button>
-      )}
+      ))}
     </div>
   );
 }

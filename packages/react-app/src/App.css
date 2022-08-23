@@ -1,4 +1,6 @@
 .App {
   text-align: center;
-  padding-left: calc(100vw - 100%);
+  /* background-image: url("images/empires.jpeg"); */
+  /* background-color: rgb(202, 183, 183); */
+  background-size: cover;
 }

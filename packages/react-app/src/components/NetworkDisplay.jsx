@@ -1,5 +1,6 @@
-import { Alert, Button } from "antd";
-import React from "react";
+import { Alert, Button, Modal } from "antd";
+import { React, useState } from "react";
+import { ExclamationCircleOutlined } from '@ant-design/icons';
 
 import { NETWORK } from "../constants";
 
@@ -11,15 +12,19 @@ function NetworkDisplay({
   USE_NETWORK_SELECTOR,
   logoutOfWeb3Modal,
 }) {
+
+
   let networkDisplay = "";
   if (NETWORKCHECK && localChainId && selectedChainId && localChainId !== selectedChainId) {
     const networkSelected = NETWORK(selectedChainId);
     const networkLocal = NETWORK(localChainId);
+
     if (selectedChainId === 1337 && localChainId === 31337) {
       networkDisplay = (
-        <div style={{ zIndex: 2, position: "absolute", right: 0, top: 60, padding: 16 }}>
           <Alert
-            message="⚠️ Wrong Network ID"
+            banner
+            showIcon
+            message="⚠️ Wrong Network ID!"
             description={
               <div>
                 You have <b>chain id 1337</b> for localhost and you need to change it to <b>31337</b> to work with
@@ -30,17 +35,31 @@ function NetworkDisplay({
             type="error"
             closable={false}
           />
-        </div>
       );
     } else {
+
+      networkDisplay = (<Modal
+        title="Vertically centered modal dialog"
+        // centered
+        // visible={modal2Visible}
+        // onOk={() => setModal2Visible(false)}
+        // onCancel={() => setModal2Visible(false)}
+      >
+        <p>some contents...</p>
+      </Modal>
+      );
+
       networkDisplay = (
-        <div style={{ zIndex: 2, position: "absolute", right: 0, top: 60, padding: 16 }}>
           <Alert
-            message="⚠️ Wrong Network"
+            banner
+            showIcon
+            message="⚠️ Wrong Network!"
             description={
               <div>
-                You have <b>{networkSelected && networkSelected.name}</b> selected and you need to be on{" "}
+                You have <b>{networkSelected && networkSelected.name}</b> selected and you need to {" "}
                 <Button
+                  shape="round"
+                  danger
                   onClick={async () => {
                     const ethereum = window.ethereum;
                     const data = [
@@ -52,7 +71,6 @@ function NetworkDisplay({
                         blockExplorerUrls: [targetNetwork.blockExplorer],
                       },
                     ];
-                    console.log("data", data);
 
                     let switchTx;
                     // https://docs.metamask.io/guide/rpc-api.html#other-rpc-methods
@@ -78,25 +96,16 @@ function NetworkDisplay({
                     }
                   }}
                 >
-                  <b>{networkLocal && networkLocal.name}</b>
+                  <b>connect to {networkLocal && networkLocal.name}</b>
                 </Button>
               </div>
             }
             type="error"
             closable={false}
           />
-        </div>
       );
     }
-  } else {
-    networkDisplay = USE_NETWORK_SELECTOR ? null : (
-      <div style={{ zIndex: -1, position: "absolute", right: 150, top: 25, padding: 16, color: targetNetwork.color }}>
-        {targetNetwork.name}
-      </div>
-    );
   }
-
-  console.log({ networkDisplay });
 
   return networkDisplay;
 }

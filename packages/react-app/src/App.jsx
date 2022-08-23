@@ -1,4 +1,4 @@
-import { Button, Col, Menu, Row } from "antd";
+import { Button, Col, Menu, Row, Modal } from "antd";
 import "antd/dist/antd.css";
 import {
   useBalance,
@@ -19,10 +19,8 @@ import {
   GasGauge,
   Header,
   Ramp,
-  ThemeSwitch,
   NetworkDisplay,
   FaucetHint,
-  NetworkSwitch,
 } from "./components";
 import { NETWORKS, ALCHEMY_KEY } from "./constants";
 import externalContracts from "./contracts/external_contracts";
@@ -33,24 +31,6 @@ import { Home, ExampleUI, Hints, Subgraph } from "./views";
 import { useStaticJsonRPC } from "./hooks";
 
 const { ethers } = require("ethers");
-/*
-    Welcome to 🏗 scaffold-eth !
-
-    Code:
-    https://github.com/scaffold-eth/scaffold-eth
-
-    Support:
-    https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA
-    or DM @austingriffith on twitter or telegram
-
-    You should get your own Alchemy.com & Infura.io ID and put it in `constants.js`
-    (this is your connection to the main Ethereum network for ENS etc.)
-
-
-    🌏 EXTERNAL CONTRACTS:
-    You can also bring in contract artifacts in `constants.js`
-    (and then use the `useExternalContractLoader()` hook!)
-*/
 
 /// 📡 What chain are your contracts deployed to?
 const initialNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
@@ -58,7 +38,7 @@ const initialNetwork = NETWORKS.localhost; // <------- select your target fronte
 // 😬 Sorry for all the console logging
 const DEBUG = true;
 const NETWORKCHECK = true;
-const USE_BURNER_WALLET = true; // toggle burner wallet feature
+const USE_BURNER_WALLET = false; // toggle burner wallet feature
 const USE_NETWORK_SELECTOR = false;
 
 const web3Modal = Web3ModalSetup();
@@ -73,7 +53,7 @@ const providers = [
 function App(props) {
   // specify all the chains your app is available on. Eg: ['localhost', 'mainnet', ...otherNetworks ]
   // reference './constants.js' for other networks
-  const networkOptions = [initialNetwork.name, "mainnet", "rinkeby"];
+  const networkOptions = [initialNetwork.name, "mumbai"];
 
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
@@ -130,8 +110,6 @@ function App(props) {
   const selectedChainId =
     userSigner && userSigner.provider && userSigner.provider._network && userSigner.provider._network.chainId;
 
-  // For more hooks, check out 🔗eth-hooks at: https://www.npmjs.com/package/eth-hooks
-
   // The transactor wraps transactions and provides notificiations
   const tx = Transactor(userSigner, gasPrice);
 
@@ -160,11 +138,6 @@ function App(props) {
   useOnBlock(mainnetProvider, () => {
     console.log(`⛓ A new mainnet block is here: ${mainnetProvider._lastBlockNumber}`);
   });
-
-  // Then read your DAI balance like:
-  const myMainnetDAIBalance = useContractReader(mainnetContracts, "DAI", "balanceOf", [
-    "0x34aA3F359A9D614239015126635CE7732c18fDF3",
-  ]);
 
   // keep track of a variable from the contract in the local React state:
   const purpose = useContractReader(readContracts, "YourContract", "purpose");
@@ -198,7 +171,6 @@ function App(props) {
       console.log("💵 yourMainnetBalance", yourMainnetBalance ? ethers.utils.formatEther(yourMainnetBalance) : "...");
       console.log("📝 readContracts", readContracts);
       console.log("🌍 DAI contract on mainnet:", mainnetContracts);
-      console.log("💵 yourMainnetDAIBalance", myMainnetDAIBalance);
       console.log("🔐 writeContracts", writeContracts);
     }
   }, [
@@ -210,8 +182,7 @@ function App(props) {
     readContracts,
     writeContracts,
     mainnetContracts,
-    localChainId,
-    myMainnetDAIBalance,
+    localChainId
   ]);
 
   const loadWeb3Modal = useCallback(async () => {
@@ -244,26 +215,80 @@ function App(props) {
 
   const faucetAvailable = localProvider && localProvider.connection && targetNetwork.name.indexOf("local") !== -1;
 
+  const connect = async () => {
+
+      const ethereum = window.ethereum;
+      const data = [
+        {
+          chainId: "0x" + targetNetwork.chainId.toString(16),
+          chainName: targetNetwork.name,
+          nativeCurrency: targetNetwork.nativeCurrency,
+          rpcUrls: [targetNetwork.rpcUrl],
+          blockExplorerUrls: [targetNetwork.blockExplorer],
+        },
+      ];
+
+      let switchTx;
+      // https://docs.metamask.io/guide/rpc-api.html#other-rpc-methods
+      try {
+        switchTx = await ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: data[0].chainId }],
+        });
+      } catch (switchError) {
+        // not checking specific error code, because maybe we're not using MetaMask
+        try {
+          switchTx = await ethereum.request({
+            method: "wallet_addEthereumChain",
+            params: data,
+          });
+        } catch (addError) {
+          // handle "add" error
+        }
+      }
+  }
+
+  const [modalVisible, setModalVisible] = useState(true);
+
   return (
     <div className="App">
+      
+      {/* if (NETWORKCHECK && localChainId && selectedChainId && localChainId !== selectedChainId) {
+    
+        if (selectedChainId === 1337 && localChainId === 31337) {
+          // <Modal
+          //   title="Vertically centered modal dialog"
+          //   centered
+          //   visible={true}
+          //   // onOk={() => setModal2Visible(false)}
+          //   // onCancel={() => setModal2Visible(false)}
+          // >
+          //   <p>some contents...</p>
+          // </Modal>
+        } else {
+          <Modal
+            title="Vertically centered modal dialog"
+            centered
+            // visible={true}
+            // onOk={() => setModal2Visible(false)}
+            // onCancel={() => setModal2Visible(false)}
+          >
+            <p>some contents...</p>
+          </Modal>
+        } */}
+
+
       {/* ✏️ Edit the header and change the title to your project name */}
       <Header>
         {/* 👨‍💼 Your account is in the top right with a wallet at connect options */}
         <div style={{ position: "relative", display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", flex: 1 }}>
-            {USE_NETWORK_SELECTOR && (
-              <div style={{ marginRight: 20 }}>
-                <NetworkSwitch
-                  networkOptions={networkOptions}
-                  selectedNetwork={selectedNetwork}
-                  setSelectedNetwork={setSelectedNetwork}
-                />
-              </div>
-            )}
             <Account
               useBurner={USE_BURNER_WALLET}
               address={address}
               localProvider={localProvider}
+              networkname={selectedChainId && localChainId == selectedChainId ? `You are connected to ${selectedNetwork}.` : ""}
+              connected={selectedChainId && localChainId == selectedChainId}
               userSigner={userSigner}
               mainnetProvider={mainnetProvider}
               price={price}
@@ -275,35 +300,53 @@ function App(props) {
           </div>
         </div>
       </Header>
-      {yourLocalBalance.lte(ethers.BigNumber.from("0")) && (
+      {/* {yourLocalBalance.lte(ethers.BigNumber.from("0")) && (
         <FaucetHint localProvider={localProvider} targetNetwork={targetNetwork} address={address} />
-      )}
-      <NetworkDisplay
-        NETWORKCHECK={NETWORKCHECK}
-        localChainId={localChainId}
-        selectedChainId={selectedChainId}
-        targetNetwork={targetNetwork}
-        logoutOfWeb3Modal={logoutOfWeb3Modal}
-        USE_NETWORK_SELECTOR={USE_NETWORK_SELECTOR}
-      />
+      )} */}
+
+        {
+        NETWORKCHECK && localChainId && selectedChainId && localChainId !== selectedChainId ?
+          (selectedChainId === 1337 && localChainId === 31337 ?
+            <Modal
+              title="Wrong Network ID!"
+              centered
+              visible={modalVisible}
+              onOk={() => setModalVisible(false)}
+              cancelButtonProps={{ style: { display: 'none' } }}
+              footer={[
+                <Button onClick={logoutOfWeb3Modal} type="primary">
+                  Ok
+                </Button>
+              ]}
+            >
+              <p>Your localhost Network ID is 1337 and does not match that used for Hardhat which is 31337.
+              Please change your network ID in Metamask using the following steps:</p>
+              <p>(MetaMask -&gt; Settings -&gt; Networks -&gt; Chain ID -&gt; 31337)</p>
+            </Modal>
+            :
+            <Modal
+              title="Wrong Network!"
+              centered
+              visible={modalVisible}
+              onOk={() => setModalVisible(false)}
+              cancelButtonProps={{ style: { display: 'none' } }}
+              footer={[
+                <Button onClick={connect} type="primary">
+                  Connect
+                </Button>
+              ]}
+            >
+              <p>You are not connected to the Matic Network. Click below to switch networks</p>
+            </Modal>)
+        : null
+      }
+
       <Menu style={{ textAlign: "center", marginTop: 20 }} selectedKeys={[location.pathname]} mode="horizontal">
         <Menu.Item key="/">
-          <Link to="/">App Home</Link>
+          <Link to="/">Battlefield!</Link>
         </Menu.Item>
         <Menu.Item key="/debug">
-          <Link to="/debug">Debug Contracts</Link>
-        </Menu.Item>
-        <Menu.Item key="/hints">
-          <Link to="/hints">Hints</Link>
-        </Menu.Item>
-        <Menu.Item key="/exampleui">
-          <Link to="/exampleui">ExampleUI</Link>
-        </Menu.Item>
-        <Menu.Item key="/mainnetdai">
-          <Link to="/mainnetdai">Mainnet DAI</Link>
-        </Menu.Item>
-        <Menu.Item key="/subgraph">
-          <Link to="/subgraph">Subgraph</Link>
+          <Link to="/debug">Debug</Link>
         </Menu.Item>
       </Menu>
 
@@ -383,34 +426,9 @@ function App(props) {
         </Route>
       </Switch>
 
-      <ThemeSwitch />
-
       {/* 🗺 Extra UI like gas price, eth price, faucet, and support: */}
       <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
-        <Row align="middle" gutter={[4, 4]}>
-          <Col span={8}>
-            <Ramp price={price} address={address} networks={NETWORKS} />
-          </Col>
-
-          <Col span={8} style={{ textAlign: "center", opacity: 0.8 }}>
-            <GasGauge gasPrice={gasPrice} />
-          </Col>
-          <Col span={8} style={{ textAlign: "center", opacity: 1 }}>
-            <Button
-              onClick={() => {
-                window.open("https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA");
-              }}
-              size="large"
-              shape="round"
-            >
-              <span style={{ marginRight: 8 }} role="img" aria-label="support">
-                💬
-              </span>
-              Support
-            </Button>
-          </Col>
-        </Row>
-
+        
         <Row align="middle" gutter={[4, 4]}>
           <Col span={24}>
             {

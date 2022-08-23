@@ -30,11 +30,12 @@ const { utils } = require("ethers");
 **/
 
 export default function Balance(props) {
-  const [dollarMode, setDollarMode] = useState(true);
 
   const balance = useBalance(props.provider, props.address);
   let floatBalance = parseFloat("0.00");
   let usingBalance = balance;
+
+  let networkname = props.networkname;
 
   if (typeof props.balance !== "undefined") usingBalance = props.balance;
   if (typeof props.value !== "undefined") usingBalance = props.value;
@@ -47,25 +48,20 @@ export default function Balance(props) {
 
   let displayBalance = floatBalance.toFixed(4);
 
-  const price = props.price || props.dollarMultiplier || 1;
-
-  if (dollarMode) {
-    displayBalance = "$" + (floatBalance * price).toFixed(2);
+  let balanceToShow = "";
+  if (props.connected) {
+    balanceToShow = `You have ${displayBalance} Matic`;
   }
 
   return (
     <span
       style={{
         verticalAlign: "middle",
-        fontSize: props.size ? props.size : 24,
-        padding: 8,
-        cursor: "pointer",
-      }}
-      onClick={() => {
-        setDollarMode(!dollarMode);
+        fontSize: props.size,
+        color: "black"
       }}
     >
-      {displayBalance}
+      {balanceToShow}
     </span>
   );
 }
