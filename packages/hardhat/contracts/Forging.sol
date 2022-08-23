@@ -1,9 +1,10 @@
-//SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0 <0.9.0;
 
 import "hardhat/console.sol";
-import "@openzeppelin/contracts/access/Ownable.sol"; 
 import "./Token.sol";
+import "@openzeppelin/contracts/access/Ownable.sol"; 
+
 
 contract Forging is Ownable {
   Token private token;
@@ -19,12 +20,12 @@ contract Forging is Ownable {
     token.mint(msg.sender, id);
   }
 
-  function balanceOf(address _of, uint256 id) external view onlyOwner {
-    token.balanceOf(_of, id);
+  function balanceOf(address _of, uint256 id) external view onlyOwner returns (uint256) {
+    return token.balanceOf(_of, id);
   }
 
-  function totalSupply(uint256 id) external view onlyOwner {
-    token.totalSupply(id);
+  function totalSupply(uint256 id) external view onlyOwner returns (uint256) {
+    return token.totalSupply(id);
   }
 
   /**

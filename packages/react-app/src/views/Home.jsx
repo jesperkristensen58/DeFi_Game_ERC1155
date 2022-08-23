@@ -15,14 +15,61 @@ const { Title } = Typography;
  * @param {*} readContracts contracts from current chain already pre-loaded using ethers contract module. More here https://docs.ethers.io/v5/api/contract/contract/
  * @returns react component
  **/
-function Home({ yourLocalBalance, readContracts }) {
-  // you can also use hooks locally in your component of choice
-  // in this case, let's keep track of 'purpose' variable from our contract
-  const purpose = useContractReader(readContracts, "YourContract", "purpose")
+function Home({ readContracts, writeContracts, tx }) {
+
+
+  /*******************************************************************************************************************
+  * 
+  *  Set State
+  * 
+  *******************************************************************************************************************/
+  const [checkedList, setCheckedList] = useState(defaultCheckedList);
+
+  // Read the contract
+  const theOwner = useContractReader(readContracts, "Forging", "owner()")
+  const theBalance = useContractReader(readContracts, "Forging", "balanceOf(address,uint256)", ["0x95E2A897E609bCc36dF377EEEF4163bF8fBfcceA", 0]);
+
+  console.log("OWNER");
+  console.log(theOwner);
+  console.log(theBalance);
+  console.log("DONE")
+
+  // Write to the contract
+  return (
+    <>
+    <Button
+    style={{ marginTop: 8 }}
+    onClick={async () => {
+      /* look how you call setPurpose on your contract: */
+      /* notice how you pass a call back for tx updates too */
+      const result = tx(writeContracts.Forging.mint(0), update => {
+        console.log("📡 Transaction Update:", update);
+        if (update && (update.status === "confirmed" || update.status === 1)) {
+          console.log(" 🍾 Transaction " + update.hash + " finished!");
+          console.log(
+            " ⛽️ " +
+              update.gasUsed +
+              "/" +
+              (update.gasLimit || update.gas) +
+              " @ " +
+              parseFloat(update.gasPrice) / 1000000000 +
+              " gwei",
+          );
+        }
+      });
+      console.log("awaiting metamask/web3 confirm result...", result);
+      console.log(await result);
+    }}
+  >
+    Mint!
+  </Button>
+    </>
+  );
+
+
 
   const showthecard = true; // these variables would come from the contract... do we own any wood etc.?
-
-  const [checkedList, setCheckedList] = useState(defaultCheckedList);
+  
 
   const onChange = (checkedValues) => {
     console.log('checked = ', checkedValues);

@@ -57,16 +57,20 @@ export default function Contract({
   chainId,
   contractConfig,
 }) {
-  const contracts = useContractLoader(provider, contractConfig, chainId);
+  const contracts = useContractLoader(signer, contractConfig, chainId);
   let contract;
   if (!customContract) {
     contract = contracts ? contracts[name] : "";
   } else {
     contract = customContract;
   }
-
   const address = contract ? contract.address : "";
   const contractIsDeployed = useContractExistsAtAddress(provider, address);
+
+  console.log("HEREHEREHERE");
+  console.log(contract);
+  console.log(contractIsDeployed);
+  console.log("DOOOOONE");
 
   const displayedContractFunctions = useMemo(() => {
     const results = contract
@@ -105,7 +109,7 @@ export default function Contract({
           key={"FF" + contractFuncInfo[0]}
           contractFunction={contractFunc}
           functionInfo={contractFuncInfo[1]}
-          provider={provider}
+          provider={signer}
           gasPrice={gasPrice}
           triggerRefresh={triggerRefresh}
         />
@@ -122,7 +126,7 @@ export default function Contract({
             {name}
             <div style={{ float: "right" }}>
               <Address value={address} blockExplorer={blockExplorer} />
-              <Balance address={address} provider={provider} price={price} />
+              {/* <Balance address={address} provider={provider} price={price} /> */}
             </div>
           </div>
         }

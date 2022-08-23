@@ -18,13 +18,8 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     waitConfirmations: 5,
   });
 
-  console.log("Transfer ownership to metamask dev deployer account...");
-  const forging = await ethers.getContract("Forging", deployer);
-
-  // Transfer to metamask deployer account
-  await forging.transferOwnership(
-    "0x4C6Caa288725b362d97728226e148680Ff7D1117"
-  );
+  // console.log("Transfer ownership to metamask dev deployer account...");
+  // const forging = await ethers.getContract("Forging", deployer);
 
   // Getting a previously deployed contract
   // const YourContract = await ethers.getContract("YourContract", deployer);

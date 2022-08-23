@@ -204,7 +204,18 @@ export default function FunctionForm({ contractFunction, functionInfo, provider,
               let result;
               if (functionInfo.stateMutability === "view" || functionInfo.stateMutability === "pure") {
                 try {
-                  const returned = await contractFunction(...args);
+                  console.log("IM HAPPY");
+                  console.log(args);
+
+                  const overrides = {};
+                  overrides.gasPrice = gasPrice;
+
+                  console.log(tx);
+
+                  const returned = await tx(contractFunction(...args), overrides);
+                  console.log(returned);
+
+                  // const returned = await contractFunction(...args);
                   handleForm(returned);
                   result = tryToDisplayAsText(returned);
                 } catch (err) {
