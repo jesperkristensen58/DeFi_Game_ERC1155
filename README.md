@@ -1,5 +1,5 @@
 <div align="center">
-# Welcome to The Forge of Chains DeFi ERC1155 Game!
+  <h1> Welcome to The Forge of Chains DeFi ERC1155 Game!</h1>
 
 <img src="./background2.jpg" width="640"/>
 </div>
