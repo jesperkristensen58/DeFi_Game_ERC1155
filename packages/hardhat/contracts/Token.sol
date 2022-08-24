@@ -29,8 +29,8 @@ contract Token is ERC1155, ERC1155Burnable, ERC1155Supply, Ownable {
    * @notice Mint 1 unit of token `id` to the contract owner.
    * @param id the token id to mint.
    */
-  function mint(address _to, uint256 id) external onlyOwner {
-    _mint(_to, id, 1, "");
+  function mint(address _to, uint256 id, uint256 amount) external onlyOwner {
+    _mint(_to, id, amount, "");
   }
 
   /**

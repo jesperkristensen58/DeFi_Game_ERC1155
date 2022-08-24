@@ -7,16 +7,40 @@ const localChainId = "31337";
 module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
-  // const chainId = await getChainId();
+  
+  // First deploy the token
+  console.log("Deploying TOKEN contract...");
+  console.log("Deployer account: " + deployer);
 
-  console.log("Deploying FORGING contract...");
-  console.log("Deployer address: " + deployer);
-
-  await deploy("Forging", {
+  await deploy("Token", {
     from: deployer,
     log: true,
     waitConfirmations: 5,
   });
+
+  const token = await ethers.getContract("Token", deployer);
+  console.log("TOKEN Deployed to address: " + token.address);
+
+  console.log("Deploying FORGING contract...");
+  await deploy("Forging", {
+    from: deployer,
+    args: [token.address],
+    log: true,
+    waitConfirmations: 5,
+  });
+
+  const forging = await ethers.getContract("Forging", deployer);
+  console.log("FORGING Deployed to address: " + forging.address);
+
+  console.log("Transfer ownership from deployer on Token to Contract...")
+  await token.transferOwnership(
+    forging.address
+  );
+
+  const ownerOfToken = await token.owner();
+  console.log("Owner of the Token contract: " + ownerOfToken);
+
+  console.log("All done");
 
   // console.log("Transfer ownership to metamask dev deployer account...");
   // const forging = await ethers.getContract("Forging", deployer);

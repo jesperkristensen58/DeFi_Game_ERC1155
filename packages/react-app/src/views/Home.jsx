@@ -1,22 +1,15 @@
 import { useContractReader } from "eth-hooks";
-import { ethers } from "ethers";
+import { ethers, BigNumber } from "ethers";
 import { React, useState} from "react";
 import { Link } from "react-router-dom";
-import { Col, Row, Divider, Typography, Avatar, Space, Button, Card, Image, Checkbox } from "antd";
+import { Col, Row, Divider, Typography, Avatar, Space, Button, Card, Image, Checkbox, Skeleton, message } from "antd";
 import { FireTwoTone, PlusCircleOutlined } from '@ant-design/icons';
-
-const defaultCheckedList = [];
 
 const { Title } = Typography;
 
-/**
- * web3 props can be passed from '../App.jsx' into your local view component for use
- * @param {*} yourLocalBalance balance on current network
- * @param {*} readContracts contracts from current chain already pre-loaded using ethers contract module. More here https://docs.ethers.io/v5/api/contract/contract/
- * @returns react component
- **/
-function Home({ readContracts, writeContracts, tx }) {
+function Home({ address, readContracts, writeContracts, tx, deployedContracts }) {
 
+  const defaultCheckedList = [];
 
   /*******************************************************************************************************************
   * 
@@ -24,60 +17,83 @@ function Home({ readContracts, writeContracts, tx }) {
   * 
   *******************************************************************************************************************/
   const [checkedList, setCheckedList] = useState(defaultCheckedList);
-
-  // Read the contract
-  const theOwner = useContractReader(readContracts, "Forging", "owner()")
-  const theBalance = useContractReader(readContracts, "Forging", "balanceOf(address,uint256)", ["0x95E2A897E609bCc36dF377EEEF4163bF8fBfcceA", 0]);
-
-  console.log("OWNER");
-  console.log(theOwner);
-  console.log(theBalance);
-  console.log("DONE")
-
-  // Write to the contract
-  return (
-    <>
-    <Button
-    style={{ marginTop: 8 }}
-    onClick={async () => {
-      /* look how you call setPurpose on your contract: */
-      /* notice how you pass a call back for tx updates too */
-      const result = tx(writeContracts.Forging.mint(0), update => {
-        console.log("📡 Transaction Update:", update);
-        if (update && (update.status === "confirmed" || update.status === 1)) {
-          console.log(" 🍾 Transaction " + update.hash + " finished!");
-          console.log(
-            " ⛽️ " +
-              update.gasUsed +
-              "/" +
-              (update.gasLimit || update.gas) +
-              " @ " +
-              parseFloat(update.gasPrice) / 1000000000 +
-              " gwei",
-          );
-        }
-      });
-      console.log("awaiting metamask/web3 confirm result...", result);
-      console.log(await result);
-    }}
-  >
-    Mint!
-  </Button>
-    </>
-  );
-
-
-
-  const showthecard = true; // these variables would come from the contract... do we own any wood etc.?
+  const [loadings, setLoadings] = useState([]);  // showing components as loading
   
+  // TODO: CHANGE THIS?
+  const anyAddress = "0x253ac99aae5ec350cb3d0274be130052f89f6b53";
+  const theForgingAddress = readContracts && readContracts.Forging ? readContracts.Forging.address : anyAddress;
+
+  let currentApproval = useContractReader(readContracts, "Token", "isApprovedForAll(address,address)", [ethers.utils.getAddress(address ? address : anyAddress), ethers.utils.getAddress(theForgingAddress ? theForgingAddress : anyAddress)]);
+
+  // This is to toggle loading states for various components (just call loadings(<your index>)):
+  const enterLoading = (index) => {
+    setLoadings((prevLoadings) => {
+      const newLoadings = [...prevLoadings];
+      newLoadings[index] = true;
+      message.loading('Signature required...');
+      return newLoadings;
+    });
+  };
+  const exitLoading = (index) => {
+    setLoadings((prevLoadings) => {
+      const newLoadings = [...prevLoadings];
+      newLoadings[index] = false;
+      setCheckedList(defaultCheckedList);
+      return newLoadings;
+    });
+  };
 
   const onChange = (checkedValues) => {
     console.log('checked = ', checkedValues);
     setCheckedList(checkedValues);
   };
 
+  const getApproval = async () => {
+    if (!currentApproval) {
+      message.loading('Please approve protocol access to your inventory!');
+
+      let result = tx(writeContracts.Token.setApprovalForAll(ethers.utils.getAddress(theForgingAddress ? theForgingAddress : anyAddress), 1), update => {
+        if (update && (update.status === "confirmed" || update.status === 1)) {
+            message.success('Approval granted!');
+            currentApproval = true;
+        } else if (update && (update.status === "failed" || update.code === 4001)) {
+          message.error('Access to inventory denied!');
+          currentApproval = false;
+          setCheckedList(defaultCheckedList);
+        }
+      });
+      await result;
+    }
+  };
+
+  // Display total supplies under each element:
+  const totalSupply0 = useContractReader(readContracts, "Forging", "totalSupply(uint256)", [0]);
+  const totalSupply1 = useContractReader(readContracts, "Forging", "totalSupply(uint256)", [1]);
+  const totalSupply2 = useContractReader(readContracts, "Forging", "totalSupply(uint256)", [2]);
+
+  const myToken0 = useContractReader(readContracts, "Forging", "balanceOf(address,uint256)", [ethers.utils.getAddress(address ? address : anyAddress), 0]);
+  const myToken1 = useContractReader(readContracts, "Forging", "balanceOf(address,uint256)", [ethers.utils.getAddress(address ? address : anyAddress), 1]);
+  const myToken2 = useContractReader(readContracts, "Forging", "balanceOf(address,uint256)", [ethers.utils.getAddress(address ? address : anyAddress), 2]);
+  const anyTokens = (myToken0 !== undefined && myToken0 > 0) || (myToken1 !== undefined && myToken1 > 0) || (myToken2 !== undefined && myToken2 > 0);
+  const numUnique = (myToken0 !== undefined && myToken0 > 0) + (myToken1 !== undefined && myToken1 > 0) + (myToken2 !== undefined && myToken2 > 0);
+
   return (
     <>
+                <Button block size="medium" style={{margin: 2}} loading={loadings[0]} onClick={
+                    async () => {
+                      enterLoading(10);
+                      let result = tx(writeContracts.Token.setApprovalForAll(ethers.utils.getAddress(theForgingAddress ? theForgingAddress : anyAddress), 0), update => {
+                        if (update && (update.status === "confirmed" || update.status === 1)) {
+                          exitLoading(10);
+                          message.success("Access successfully revoked for all items!");
+                        }
+                      });
+                      await result;
+                    }}
+                  >
+                    Revoke all
+                  </Button>
+
       <Row style={{margin: 12}} gutter={[16, 16]}>
         <Col span={8}>
           
@@ -98,9 +114,66 @@ function Home({ readContracts, writeContracts, tx }) {
           >
             <Row>
                 <p style={{color: "white", fontFamily: "futura" }}>
-                  <Button block size="medium" style={{margin: 2}}>Mint this</Button>
-                  <Button block size="medium" style={{margin: 2}}>Trade for this</Button>  
-                  Total Supply: 10
+                  
+                {
+                  totalSupply0 === undefined ?
+                  <>
+                    <Skeleton.Button active />
+                    <Skeleton active paragraph={{ rows: 1 }} />
+                  </>
+                :
+                <>
+                  <Button block size="medium" style={{margin: 2}} loading={loadings[0]} onClick={
+                    async (e) => {
+                      enterLoading(0);
+                      let result = tx(writeContracts.Forging.mint(BigNumber.from("0")), update => {
+                        if (update && (update.status === "confirmed" || update.status === 1)) {
+                          exitLoading(0);
+                        }
+                      });
+                      await result;
+                    }}
+                  >
+                    Mint this
+                  </Button>
+
+                  <Button block size="medium" style={{margin: 2}} disabled={checkedList.length == 0} loading={loadings[3]} onClick={
+                    async () => {
+                      enterLoading(3);
+                      await getApproval();
+
+                      var i = 0;
+                      const target = '0';
+                      while (i < checkedList.length) {
+                        if (checkedList[i] === target) {
+                          checkedList.splice(i, 1);
+                        } else {
+                          ++i;
+                        }
+                      }
+
+                      let convertedNumbers = checkedList.map( item => { return BigNumber.from(item) });                      
+                      let result = tx(writeContracts.Forging.trade(convertedNumbers, BigNumber.from(target)), update => {
+                          if (currentApproval) {
+                            if (update && (update.status === "confirmed" || update.status === 1)) {
+                              message.success('Success!');
+                              exitLoading(3);
+                            } else if (update && (update.status === "failed" || update.code === 4001)) {
+                              message.error('Transaction failed!');
+                              exitLoading(3);
+                            }
+                          }
+                          if (update && (update.status === "failed" || update.code === -32603)) {
+                            message.error('Please grant approval to your inventory!');
+                            exitLoading(3);
+                          }
+                        });
+                        await result;
+                      
+                  }}>Trade for this</Button>
+                  Total Supply: {totalSupply0.toNumber()}
+                </>
+                }
                 </p>
               </Row>
           </Card>
@@ -124,11 +197,67 @@ function Home({ readContracts, writeContracts, tx }) {
           >
             <Row>
               <p style={{color: "white", fontFamily: "futura" }}>
-                  <Button block size="medium" style={{margin: 2}}>Mint this</Button>
-                  <Button block size="medium" style={{margin: 2}}>Trade for this</Button>
-                  Total Supply: 8
-                </p>
-              </Row>
+                {
+                  totalSupply1 === undefined ?
+                  <>
+                    <Skeleton.Button active />
+                    <Skeleton active paragraph={{ rows: 1 }} />
+                  </>
+                :
+                <>
+                  <Button block size="medium" style={{margin: 2}} loading={loadings[1]} onClick={
+                    async (e) => {
+                      enterLoading(1);
+                      let result = tx(writeContracts.Forging.mint(BigNumber.from("1")), update => {
+                        if (update && (update.status === "confirmed" || update.status === 1)) {
+                          exitLoading(1);
+                        }
+                      });
+                      await result;
+                    }}
+                  >
+                    Mint this
+                  </Button>
+
+                  <Button block size="medium" style={{margin: 2}} disabled={checkedList.length == 0} loading={loadings[4]} onClick={
+                    async () => {
+                      enterLoading(4);
+                      await getApproval();
+
+                      var i = 0;
+                      const target = '1';
+                      while (i < checkedList.length) {
+                        if (checkedList[i] === target) {
+                          checkedList.splice(i, 1);
+                        } else {
+                          ++i;
+                        }
+                      }
+
+                      let convertedNumbers = checkedList.map( item => { return BigNumber.from(item) });                      
+                      let result = tx(writeContracts.Forging.trade(convertedNumbers, BigNumber.from(target)), update => {
+                          if (currentApproval) {
+                            if (update && (update.status === "confirmed" || update.status === 1)) {
+                              message.success('Success!');
+                              exitLoading(4);
+                            } else if (update && (update.status === "failed" || update.code === 4001)) {
+                              message.error('Transaction failed!');
+                              exitLoading(4);
+                            }
+                          }
+                          if (update && (update.status === "failed" || update.code === -32603)) {
+                            message.error('Please grant approval to your inventory!');
+                            exitLoading(4);
+                          }
+                        });
+                        await result;
+                  }}>Trade for this</Button>
+
+                  Total Supply: {totalSupply1.toNumber()}
+                </>
+                }
+              </p>
+            </Row>
           </Card>
         </Space>
         </Col>
@@ -152,10 +281,68 @@ function Home({ readContracts, writeContracts, tx }) {
           >
             <Row>
               <p style={{color: "white", fontFamily: "futura" }}>
-                <Button block size="medium" style={{margin: 2}}>Mint this</Button>
-                <Button block size="medium" style={{margin: 2}}>Trade for this</Button>
-                Total Supply: 6
-                </p>
+
+              {
+                  totalSupply2 === undefined ?
+                  <>
+                    <Skeleton.Button active />
+                    <Skeleton active paragraph={{ rows: 1 }} />
+                  </>
+                :
+                <>
+                  <Button block size="medium" style={{margin: 2}} loading={loadings[2]} onClick={
+                    async (e) => {
+                      enterLoading(2);
+                      let result = tx(writeContracts.Forging.mint(BigNumber.from("2")), update => {
+                        if (update && (update.status === "confirmed" || update.status === 1)) {
+                          exitLoading(2);
+                        }
+                      });
+                      await result;
+                    }}
+                  >
+                    Mint this
+                  </Button>
+
+                  <Button block size="medium" style={{margin: 2}} disabled={checkedList.length == 0} loading={loadings[5]} onClick={
+                    async () => {
+                      enterLoading(5);
+                      await getApproval();
+
+                      var i = 0;
+                      const target = '2';
+                      while (i < checkedList.length) {
+                        if (checkedList[i] === target) {
+                          checkedList.splice(i, 1);
+                        } else {
+                          ++i;
+                        }
+                      }
+
+                      let convertedNumbers = checkedList.map( item => { return BigNumber.from(item) });                      
+                      let result = tx(writeContracts.Forging.trade(convertedNumbers, BigNumber.from(target)), update => {
+                          if (currentApproval) {
+                            if (update && (update.status === "confirmed" || update.status === 1)) {
+                              message.success('Success!');
+                              exitLoading(5);
+                            } else if (update && (update.status === "failed" || update.code === 4001)) {
+                              message.error('Transaction failed!');
+                              exitLoading(5);
+                            }
+                          }
+                          if (update && (update.status === "failed" || update.code === -32603)) {
+                            message.error('Please grant approval to your inventory!');
+                            exitLoading(5);
+                          }
+                        });
+                        await result;
+                  }}>Trade for this</Button>
+
+                  Total Supply: {totalSupply2.toNumber()}
+                </>
+                }
+                
+              </p>
               </Row>
           </Card>
         </Space>
@@ -168,13 +355,34 @@ function Home({ readContracts, writeContracts, tx }) {
         <Col span={12}>
           
           <Title level={4} style={{ color: "white", fontFamily: "futura" }}>Your Elements</Title>
-          <Title level={5} style={{ color: "white", fontFamily: "futura" }}>Select two or more elements to forge weaponry</Title>
+
+          { anyTokens !== undefined && anyTokens ? 
+            <>
+            {numUnique !== undefined && numUnique > 1 ?
+                <Title level={5} style={{ color: "white", fontFamily: "futura" }}>Select two or more elements to forge weaponry</Title>
+              :
+              <Title level={5} style={{ color: "white", fontFamily: "futura" }}>You need two or more elements to forge weaponry</Title>
+            }
+            </>
+          :
+          <>
+          { anyTokens !== undefined && anyTokens == false ?
+            <>
+            <Title level={4} style={{ color: "red", fontFamily: "futura" }}>You have no elements<br />Mint new elements above!</Title>
+            </>
+          : null
+          }
+          </>
+          }
           
-          <Checkbox.Group onChange={onChange}>
+          <Checkbox.Group onChange={onChange} value={checkedList}>
           <Row gutter={[16, 16]}>
           
           <Space>
           <Col span={8}>
+
+            { myToken0 !== undefined && myToken0 > 0 ?
+
             <Card
               hoverable
               style={{ width: 200, borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}
@@ -191,13 +399,17 @@ function Home({ readContracts, writeContracts, tx }) {
             >
               <Row>
                   <p style={{color: "white", fontFamily: "futura" }}>
-                    <Checkbox value="0" style={{color: "white", fontFamily: "futura"}}>Iron</Checkbox>
+                    <Checkbox value="0" style={{color: "white", fontFamily: "futura"}}>Iron {myToken0 !== undefined ? `(${myToken0.toNumber()})` : null}</Checkbox>
                   </p>
                 </Row>
             </Card>
+
+            : null }
+
           </Col>
           <Col span={8}>
-            {showthecard ?
+            
+          { myToken1 !== undefined && myToken1 > 0 ?
             <Card
               hoverable
               style={{ width: 200, borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}
@@ -214,13 +426,16 @@ function Home({ readContracts, writeContracts, tx }) {
             >
               <Row>
                   <p style={{color: "white", fontFamily: "futura" }}>
-                  <Checkbox value="1" style={{color: "white", fontFamily: "futura"}}>Carbon</Checkbox>
+                  <Checkbox value="1" style={{color: "white", fontFamily: "futura"}}>Carbon {myToken1 !== undefined ? `(${myToken1.toNumber()})` : null}</Checkbox>
                   </p>
                 </Row>
             </Card>
-            : null}
+          : null }
+            
           </Col>
           <Col span={8}>
+
+          { myToken2 !== undefined && myToken2 > 0 ?
             <Card
               hoverable
               style={{ width: 200, borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}
@@ -237,10 +452,11 @@ function Home({ readContracts, writeContracts, tx }) {
             >
               <Row>
                   <p style={{color: "white", fontFamily: "futura" }}>
-                    <Checkbox value="2" style={{color: "white", fontFamily: "futura"}}>Wood</Checkbox>
+                    <Checkbox value="2" style={{color: "white", fontFamily: "futura"}}>Wood {myToken2 !== undefined ? `(${myToken2.toNumber()})` : null}</Checkbox>
                   </p>
                 </Row>
             </Card>
+            : null }
 
           </Col>
           </Space>
@@ -250,6 +466,8 @@ function Home({ readContracts, writeContracts, tx }) {
           <Row style={{margin: 12}}>
             <Col span={10}></Col>
             
+            {numUnique !== undefined && numUnique > 1 ?
+              <>
               {checkedList.length >= 2 ?
               <>
                 <Col flex="100px">
@@ -260,12 +478,17 @@ function Home({ readContracts, writeContracts, tx }) {
               :
               <>
               <Col flex="100px">
-                <Button block size="large" shape="round" style={{fontFamily: "futura"}} disabled>choose elements</Button>
+                {anyTokens !== undefined && anyTokens ?
+                  <Button block size="large" shape="round" style={{fontFamily: "futura"}} disabled>choose elements</Button>
+                : null
+                }
               </Col>
               <Col flex="auto"></Col>
               </>
               }
-            
+              </>
+            : null
+            }
             
           </Row>
           

@@ -3,6 +3,7 @@
   /* background-image: url("images/background2.jpg"); */
   /* background-color: rgb(202, 183, 183); */
   /* background-size: cover; */
+  overflow-x: hidden; /* Hide horizontal scrollbar */
 }
 
 body { 
@@ -24,7 +25,7 @@ body {
 }
 .flame {
   animation-name: flamefly;
-  animation-duration: 2s;
+  animation-duration: 10s;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
   opacity: 0;
@@ -35,7 +36,7 @@ body {
   animation-duration: 3s;
 }
 .flame3.two{
-  animation-duration: 5s;
+  animation-duration: 10s;
   animation-delay: 1s;
 }
 
@@ -78,7 +79,7 @@ body {
      opacity: 1;
   }
   100% {
-    transform: translate(-20px, -100px) rotate(180deg);
+    transform: translate(-10px, -100px) rotate(180deg);
     opacity: 0;
   }
 }
