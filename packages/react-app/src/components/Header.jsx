@@ -1,7 +1,8 @@
 import React from "react";
 import { Typography, Button, Descriptions, Divider, Row, Col } from "antd";
+import { TwitterCircleFilled } from '@ant-design/icons';
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 // displays a page header
 
@@ -43,6 +44,8 @@ export default function Header({ link, title, subTitle, ...props }) {
             <Col flex="auto">
               <Typography>
                 <Title style={{margin: 40, color: "white", fontFamily: "futura" }}>Metana Project ERC1155 Forging</Title>          
+                <Title level={4} style={{margin: "-30px", fontFamily: "futura" }}><a href="">See Collection on OpenSea</a></Title>
+                <Title level={4} style={{margin: "40px", fontFamily: "futura" }}><Button primary shape="round" size="medium" danger href="https://twitter.com/cryptojesperk" icon={<TwitterCircleFilled />}>Jesper Kristensen</Button></Title>
               </Typography>
             </Col>
           </Row>

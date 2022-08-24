@@ -197,9 +197,13 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
                               } else if (update && (update.status === "failed" || update.code === 4001)) {
                                 message.error('Transaction failed!');
                                 exitLoading(3);
+                              } else if (update && (update.status === "failed" || update.code === -32603 && update.data.message.includes("Cooldown"))) {
+                                message.error('Action not possible while in a cooldown!');
+                                exitLoading(3);
                               }
                             }
-                            if (update && (update.status === "failed" || update.code === -32603)) {
+
+                            if (update && (update.status === "failed" || update.code === -32603 && !update.data.message.includes("Cooldown"))) {
                               message.error('Please grant approval to your inventory!');
                               exitLoading(3);
                             }
@@ -293,9 +297,12 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
                               } else if (update && (update.status === "failed" || update.code === 4001)) {
                                 message.error('Transaction failed!');
                                 exitLoading(4);
+                              } else if (update && (update.status === "failed" || update.code === -32603 && update.data.message.includes("Cooldown"))) {
+                                message.error('Action not possible while in a cooldown!');
+                                exitLoading(4);
                               }
                             }
-                            if (update && (update.status === "failed" || update.code === -32603)) {
+                            if (update && (update.status === "failed" || update.code === -32603 && !update.data.message.includes("Cooldown"))) {
                               message.error('Please grant approval to your inventory!');
                               exitLoading(4);
                             }
@@ -390,10 +397,17 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
                               } else if (update && (update.status === "failed" || update.code === 4001)) {
                                 message.error('Transaction failed!');
                                 exitLoading(5);
+                              } else if (update && (update.status === "failed" || update.code === -32603 && update.data.message.includes("Cooldown"))) {
+                                message.error('Action not possible while in a cooldown!');
+                                exitLoading(5);
+                              } else {
+                                exitLoading(5);
                               }
                             }
-                            if (update && (update.status === "failed" || update.code === -32603)) {
+                            if (update && (update.status === "failed" || update.code === -32603 && !update.data.message.includes("Cooldown"))) {
                               message.error('Please grant approval to your inventory!');
+                              exitLoading(5);
+                            } else {
                               exitLoading(5);
                             }
                           });

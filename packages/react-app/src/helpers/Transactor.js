@@ -146,7 +146,7 @@ export default function Transactor(providerOrSigner, gasPrice, etherscan) {
         }
 
         notification.error({
-          message: "Ouch! Transaction Error",
+          message: "Transaction Error",
           description: message,
         });
         if (callback && typeof callback === "function") {
