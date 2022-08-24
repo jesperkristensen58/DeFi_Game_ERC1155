@@ -7,18 +7,10 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 import "@openzeppelin/contracts/access/Ownable.sol"; 
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract Token is ERC1155, ERC1155Burnable, ERC1155Supply, Ownable {
-  // base elements that can forge into weaponry
-  uint256 public constant IRON = 0;
-  uint256 public constant CARBON = 1;
-  uint256 public constant WOOD = 2;
-  // Weaponry
-  uint256 public constant SHIELD = 3;
-  uint256 public constant CROSSBOW = 4;
-  uint256 public constant ARROW = 5;
-  uint256 public constant SWORD = 6;
-  
+
   /**
    * @notice Construct the ERC1155 Token Contract
    * @dev We publish the item information and pictures via IPFS.
@@ -26,8 +18,10 @@ contract Token is ERC1155, ERC1155Burnable, ERC1155Supply, Ownable {
   constructor() ERC1155("ipfs://QmTdMVgk11h5hFjp7vbnb8h8NFm1o9rQZjoBSoiDpYSDwi/{id}") {}
 
   /**
-   * @notice Mint 1 unit of token `id` to the contract owner.
+   * @notice Mint `amount` unit of tokens of type `id` to the addres `to`.
+   * @param _to the address to mint the tokens to.
    * @param id the token id to mint.
+   * @param amount the amount of tokens to mint.
    */
   function mint(address _to, uint256 id, uint256 amount) external onlyOwner {
     _mint(_to, id, amount, "");
@@ -49,16 +43,17 @@ contract Token is ERC1155, ERC1155Burnable, ERC1155Supply, Ownable {
   }
 
   /**
-   * @notice Burn a single token. Only the owner can call this.
+   * @notice Burn a single token of type `id`. Only the owner can call this.
    * @param account the account to burn the token for.
    * @param id the token id to burn.
+   * @param amount the amount of tokens to burn.
    */
   function burn(
         address account,
         uint256 id,
-        uint256
+        uint256 amount
     ) public override onlyOwner {
-      super.burn(account, id, 1);
+      super.burn(account, id, amount);
     }
 
   /**
@@ -73,5 +68,19 @@ contract Token is ERC1155, ERC1155Burnable, ERC1155Supply, Ownable {
         bytes memory data
     ) internal override(ERC1155, ERC1155Supply) {
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
+    }
+
+    /**
+     * @notice To be compatible with OpenSea.
+     * @param _tokenId the token ID of this collection.
+     * @return the full path to the image.
+     */
+    function uri(uint256 _tokenId) override public pure returns (string memory) {
+      return string(
+          abi.encodePacked(
+              "ipfs://QmTdMVgk11h5hFjp7vbnb8h8NFm1o9rQZjoBSoiDpYSDwi/",
+              Strings.toString(_tokenId),".json"
+          )
+      );
     }
 }

@@ -286,6 +286,7 @@ function App(props) {
           writeContracts={writeContracts}
           tx={tx}
           deployedContracts={deployedContracts}
+          localProvider={localProvider}
         />
       </Route>
 

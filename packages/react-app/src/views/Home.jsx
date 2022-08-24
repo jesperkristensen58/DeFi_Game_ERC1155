@@ -1,13 +1,14 @@
 import { useContractReader } from "eth-hooks";
+import { useEventListener } from "eth-hooks/events/useEventListener";
 import { ethers, BigNumber } from "ethers";
-import { React, useState} from "react";
+import { React, useState } from "react";
 import { Link } from "react-router-dom";
-import { Col, Row, Divider, Typography, Avatar, Space, Button, Card, Image, Checkbox, Skeleton, message } from "antd";
+import { Col, Row, Divider, Typography, Avatar, Space, Button, Card, Image, Checkbox, Skeleton, message, List } from "antd";
 import { FireTwoTone, PlusCircleOutlined } from '@ant-design/icons';
 
 const { Title } = Typography;
 
-function Home({ address, readContracts, writeContracts, tx, deployedContracts }) {
+function Home({ address, readContracts, writeContracts, tx, deployedContracts, localProvider }) {
 
   const defaultCheckedList = [];
 
@@ -71,15 +72,21 @@ function Home({ address, readContracts, writeContracts, tx, deployedContracts })
   const totalSupply1 = useContractReader(readContracts, "Forging", "totalSupply(uint256)", [1]);
   const totalSupply2 = useContractReader(readContracts, "Forging", "totalSupply(uint256)", [2]);
 
-  const myToken0 = useContractReader(readContracts, "Forging", "balanceOf(address,uint256)", [ethers.utils.getAddress(address ? address : anyAddress), 0]);
+  // do a batch call to get all token balances for this user
+  const myTokens = useContractReader(readContracts, "Forging", "balanceOfBatch(address[],uint256[])",
+    [Array(7).fill(ethers.utils.getAddress(address ? address : anyAddress)),
+    [0, 1, 2, 3, 4, 5, 6]]
+  );
+  console.log(myTokens);
+
   const myToken1 = useContractReader(readContracts, "Forging", "balanceOf(address,uint256)", [ethers.utils.getAddress(address ? address : anyAddress), 1]);
   const myToken2 = useContractReader(readContracts, "Forging", "balanceOf(address,uint256)", [ethers.utils.getAddress(address ? address : anyAddress), 2]);
-  const anyTokens = (myToken0 !== undefined && myToken0 > 0) || (myToken1 !== undefined && myToken1 > 0) || (myToken2 !== undefined && myToken2 > 0);
-  const numUnique = (myToken0 !== undefined && myToken0 > 0) + (myToken1 !== undefined && myToken1 > 0) + (myToken2 !== undefined && myToken2 > 0);
+  const anyTokens = (myTokens && myTokens[0] !== undefined && myTokens[0] > 0) || (myToken1 !== undefined && myToken1 > 0) || (myToken2 !== undefined && myToken2 > 0);
+  const numUnique = (myTokens && myTokens[0] !== undefined && myTokens[0] > 0) + (myToken1 !== undefined && myToken1 > 0) + (myToken2 !== undefined && myToken2 > 0);
 
   return (
     <>
-                <Button block size="medium" style={{margin: 2}} loading={loadings[0]} onClick={
+                <Button block size="medium" style={{margin: 2}} loading={loadings[10]} onClick={
                     async () => {
                       enterLoading(10);
                       let result = tx(writeContracts.Token.setApprovalForAll(ethers.utils.getAddress(theForgingAddress ? theForgingAddress : anyAddress), 0), update => {
@@ -381,7 +388,7 @@ function Home({ address, readContracts, writeContracts, tx, deployedContracts })
           <Space>
           <Col span={8}>
 
-            { myToken0 !== undefined && myToken0 > 0 ?
+            { myTokens && myTokens[0] !== undefined && myTokens[0] > 0 ?
 
             <Card
               hoverable
@@ -399,7 +406,7 @@ function Home({ address, readContracts, writeContracts, tx, deployedContracts })
             >
               <Row>
                   <p style={{color: "white", fontFamily: "futura" }}>
-                    <Checkbox value="0" style={{color: "white", fontFamily: "futura"}}>Iron {myToken0 !== undefined ? `(${myToken0.toNumber()})` : null}</Checkbox>
+                    <Checkbox value="0" style={{color: "white", fontFamily: "futura"}}>Iron {myTokens[0] !== undefined ? `(${myTokens[0].toNumber()})` : null}</Checkbox>
                   </p>
                 </Row>
             </Card>
@@ -471,7 +478,31 @@ function Home({ address, readContracts, writeContracts, tx, deployedContracts })
               {checkedList.length >= 2 ?
               <>
                 <Col flex="100px">
-                  <Button block size="large" shape="round" style={{fontFamily: "futura"}} icon={<FireTwoTone twoToneColor="#ff9a00" />}>Forge!</Button>
+
+                  <Button block size="large" shape="round" style={{margin: 2, fontFamily: "futura"}} icon={<FireTwoTone twoToneColor="#ff9a00"/>} loading={loadings[6]} onClick={
+                    async () => {
+                      enterLoading(6);
+                      await getApproval();
+
+                      let convertedNumbers = checkedList.map( item => { return BigNumber.from(item) });                      
+                      let result = tx(writeContracts.Forging.forge(convertedNumbers), update => {
+                          if (currentApproval) {
+                            if (update && (update.status === "confirmed" || update.status === 1)) {
+                              message.success('Success!');
+                              exitLoading(6);
+                            } else if (update && (update.status === "failed" || update.code === 4001)) {
+                              message.error('Transaction failed!');
+                              exitLoading(6);
+                            }
+                          }
+                          if (update && (update.status === "failed" || update.code === -32603)) {
+                            message.error('Please grant approval to your inventory!');
+                            exitLoading(6);
+                          }
+                        });
+                        await result;
+                  }}>Forge!</Button>
+
                 </Col>
                 <Col flex="auto"></Col>
                 </>
@@ -493,12 +524,63 @@ function Home({ address, readContracts, writeContracts, tx, deployedContracts })
           </Row>
           
         </Col>
-        <Col span={12}>
-          <Title level={4} style={{ color: "white", fontFamily: "futura" }}>Your Forged Weaponry</Title>
-          {new Array(4).fill(null).map((_, index) => (
-            // eslint-disable-next-line react/no-array-index-key
-            <Button key={index}>Button</Button>
-          ))}
+        <Col span={8}>
+
+        <Title level={4} style={{ color: "white", fontFamily: "futura" }}>Your Forged Weaponry</Title>
+
+          // TODO: ADD ALL TOKENS HERE [3-5] IN THE SAME WAY...
+          // TODO: GET THE IPFS PATH TO IMAGES (AND CONFIRM THAT WORKS)...
+          // TODO: Would be interesting with a loop here ... but that requires the tokenURI?
+          // TODO: Maybe overwrite tokenURI in 1155 to just hardcode the image paths (if ipfs is slow)...
+          // TODO: So yeah you would need to get the image paths of all tokens, maybe batch it?
+
+          {/********************************
+          *    TOKEN 6
+          **********************************/}
+          { myTokens && myTokens[6] !== undefined && myTokens[6] > 0 ?
+          <Card
+            hoverable
+            style={{ width: 200, borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}
+            bordered={true}
+            bodyStyle={{ backgroundColor: "#787276" }}
+            cover={<Image
+              width={200}
+              style={{ borderRadius: "10px" }}
+              src="https://images.squarespace-cdn.com/content/v1/571079941bbee00fd7f0470f/1534799119980-PRY9DCBYV547AHYIOBSH/Iron+%284%29.JPG?format=2500w"
+              preview={{
+                src: 'https://images.squarespace-cdn.com/content/v1/571079941bbee00fd7f0470f/1534799119980-PRY9DCBYV547AHYIOBSH/Iron+%284%29.JPG?format=2500w',
+              }}
+            />}
+          >
+            
+              <Button size="medium" loading={loadings[8]} onClick={
+                    async () => {
+                      enterLoading(8);
+                      await getApproval();
+                      let result = tx(writeContracts.Forging.burn(6), update => {
+                          if (currentApproval) {
+                            if (update && (update.status === "confirmed" || update.status === 1)) {
+                              message.success('Success!');
+                              exitLoading(8);
+                            } else if (update && (update.status === "failed" || update.code === 4001)) {
+                              message.error('Transaction failed!');
+                              exitLoading(8);
+                            }
+                          }
+                          if (update && (update.status === "failed" || update.code === -32603)) {
+                            message.error('Please grant approval to your inventory!');
+                            exitLoading(8);
+                          }
+                        });
+                        await result; 
+                  }}
+                >
+                  Burn ({BigNumber.from(myTokens[6]).toNumber()})
+                </Button>
+              
+          </Card>
+          : null 
+          }
         </Col>
       </Row>
     </>
