@@ -1,5 +1,7 @@
 # Welcome to The Forge of Chains DeFi ERC1155 Game!
 
+<img src="./background2.jpg" width="180"/>
+
 This game lets you forge weaponry from raw materials.
 See which weapons you can forge by combining various base elements!
 
