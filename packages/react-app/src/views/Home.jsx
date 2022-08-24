@@ -1,15 +1,18 @@
 import { useContractReader } from "eth-hooks";
-import { useEventListener } from "eth-hooks/events/useEventListener";
 import { ethers, BigNumber } from "ethers";
 import { React, useState } from "react";
-import { Link } from "react-router-dom";
-import { Col, Row, Divider, Typography, Avatar, Space, Button, Card, Image, Checkbox, Skeleton, message, List } from "antd";
-import { FireTwoTone, PlusCircleOutlined } from '@ant-design/icons';
+import { Col, Row, Divider, Typography, Avatar, Space, Button, Card, Image, Checkbox, Skeleton, message, Modal } from "antd";
+import { FireTwoTone } from '@ant-design/icons';
 
 const { Title } = Typography;
 
-function Home({ address, readContracts, writeContracts, tx, deployedContracts, localProvider }) {
-
+function Home({ address, readContracts, writeContracts, tx }) {
+  /*******************************************************************************************************************
+  * 
+  *  The main Frontend, props are passed in from the App.jsx
+  * 
+  *******************************************************************************************************************/
+  
   const defaultCheckedList = [];
 
   /*******************************************************************************************************************
@@ -24,14 +27,15 @@ function Home({ address, readContracts, writeContracts, tx, deployedContracts, l
   const anyAddress = "0x253ac99aae5ec350cb3d0274be130052f89f6b53";
   const theForgingAddress = readContracts && readContracts.Forging ? readContracts.Forging.address : anyAddress;
 
+  // check if we have already obtained approval from the user
   let currentApproval = useContractReader(readContracts, "Token", "isApprovedForAll(address,address)", [ethers.utils.getAddress(address ? address : anyAddress), ethers.utils.getAddress(theForgingAddress ? theForgingAddress : anyAddress)]);
 
-  // This is to toggle loading states for various components (just call loadings(<your index>)):
+  // ---- This is to toggle loading states for various components (just call loadings(<your index>) in the component):
   const enterLoading = (index) => {
     setLoadings((prevLoadings) => {
       const newLoadings = [...prevLoadings];
       newLoadings[index] = true;
-      message.loading('Signature required...');
+      message.loading('executing...');
       return newLoadings;
     });
   };
@@ -43,12 +47,14 @@ function Home({ address, readContracts, writeContracts, tx, deployedContracts, l
       return newLoadings;
     });
   };
+  // ----
 
-  const onChange = (checkedValues) => {
-    console.log('checked = ', checkedValues);
+  // the checkbox list of the raw materials
+  const checkBoxGroupOnChange = (checkedValues) => {
     setCheckedList(checkedValues);
   };
 
+  // this function will be called whenever an action requires approval (access to the user's tokens):
   const getApproval = async () => {
     if (!currentApproval) {
       message.loading('Please approve protocol access to your inventory!');
@@ -67,39 +73,33 @@ function Home({ address, readContracts, writeContracts, tx, deployedContracts, l
     }
   };
 
-  // Display total supplies under each element:
-  const totalSupply0 = useContractReader(readContracts, "Forging", "totalSupply(uint256)", [0]);
-  const totalSupply1 = useContractReader(readContracts, "Forging", "totalSupply(uint256)", [1]);
-  const totalSupply2 = useContractReader(readContracts, "Forging", "totalSupply(uint256)", [2]);
+  // get the base url of the jsons for the items
+  const baseUri = useContractReader(readContracts, "Forging", "baseUri()");
 
   // do a batch call to get all token balances for this user
   const myTokens = useContractReader(readContracts, "Forging", "balanceOfBatch(address[],uint256[])",
     [Array(7).fill(ethers.utils.getAddress(address ? address : anyAddress)),
     [0, 1, 2, 3, 4, 5, 6]]
   );
-  console.log(myTokens);
-
-  const myToken1 = useContractReader(readContracts, "Forging", "balanceOf(address,uint256)", [ethers.utils.getAddress(address ? address : anyAddress), 1]);
-  const myToken2 = useContractReader(readContracts, "Forging", "balanceOf(address,uint256)", [ethers.utils.getAddress(address ? address : anyAddress), 2]);
-  const anyTokens = (myTokens && myTokens[0] !== undefined && myTokens[0] > 0) || (myToken1 !== undefined && myToken1 > 0) || (myToken2 !== undefined && myToken2 > 0);
-  const numUnique = (myTokens && myTokens[0] !== undefined && myTokens[0] > 0) + (myToken1 !== undefined && myToken1 > 0) + (myToken2 !== undefined && myToken2 > 0);
+  const anyTokens = (myTokens && myTokens[0] !== undefined && myTokens[0] > 0) || (myTokens && myTokens[1] !== undefined && myTokens[1] > 0) || (myTokens && myTokens[2] !== undefined && myTokens[2] > 0);
+  const numUnique = (myTokens && (myTokens[0] !== undefined && myTokens[0] > 0)) + (myTokens && (myTokens[1] !== undefined && myTokens[1] > 0)) + (myTokens && (myTokens[2] !== undefined && myTokens[2] > 0));
 
   return (
     <>
-                <Button block size="medium" style={{margin: 2}} loading={loadings[10]} onClick={
-                    async () => {
-                      enterLoading(10);
-                      let result = tx(writeContracts.Token.setApprovalForAll(ethers.utils.getAddress(theForgingAddress ? theForgingAddress : anyAddress), 0), update => {
-                        if (update && (update.status === "confirmed" || update.status === 1)) {
-                          exitLoading(10);
-                          message.success("Access successfully revoked for all items!");
-                        }
-                      });
-                      await result;
-                    }}
-                  >
-                    Revoke all
-                  </Button>
+            <Button block size="medium" style={{margin: 2}} loading={loadings[10]} onClick={
+                async () => {
+                  enterLoading(10);
+                  let result = tx(writeContracts.Token.setApprovalForAll(ethers.utils.getAddress(theForgingAddress ? theForgingAddress : anyAddress), 0), update => {
+                    if (update && (update.status === "confirmed" || update.status === 1)) {
+                      exitLoading(10);
+                      message.success("Access successfully revoked for all items!");
+                    }
+                  });
+                  await result;
+                }}
+              >
+                Revoke all
+              </Button>
 
       <Row style={{margin: 12}} gutter={[16, 16]}>
         <Col span={8}>
@@ -123,7 +123,7 @@ function Home({ address, readContracts, writeContracts, tx, deployedContracts, l
                 <p style={{color: "white", fontFamily: "futura" }}>
                   
                 {
-                  totalSupply0 === undefined ?
+                  myTokens && (myTokens[0] === undefined) ?
                   <>
                     <Skeleton.Button active />
                     <Skeleton active paragraph={{ rows: 1 }} />
@@ -131,10 +131,14 @@ function Home({ address, readContracts, writeContracts, tx, deployedContracts, l
                 :
                 <>
                   <Button block size="medium" style={{margin: 2}} loading={loadings[0]} onClick={
-                    async (e) => {
+                    async () => {
                       enterLoading(0);
                       let result = tx(writeContracts.Forging.mint(BigNumber.from("0")), update => {
                         if (update && (update.status === "confirmed" || update.status === 1)) {
+                          exitLoading(0);
+                        } else if (update && (update.status === "failed" || update.code === -32603 && update.data.message.includes("Cooldown"))) {
+                          message.error('Action not possible while in a cooldown!');
+
                           exitLoading(0);
                         }
                       });
@@ -178,7 +182,7 @@ function Home({ address, readContracts, writeContracts, tx, deployedContracts, l
                         await result;
                       
                   }}>Trade for this</Button>
-                  Total Supply: {totalSupply0.toNumber()}
+                  Your Supply:  {myTokens && myTokens[0] ? myTokens[0].toNumber() : "..."}
                 </>
                 }
                 </p>
@@ -205,7 +209,7 @@ function Home({ address, readContracts, writeContracts, tx, deployedContracts, l
             <Row>
               <p style={{color: "white", fontFamily: "futura" }}>
                 {
-                  totalSupply1 === undefined ?
+                  myTokens && myTokens[1] === undefined ?
                   <>
                     <Skeleton.Button active />
                     <Skeleton active paragraph={{ rows: 1 }} />
@@ -217,6 +221,10 @@ function Home({ address, readContracts, writeContracts, tx, deployedContracts, l
                       enterLoading(1);
                       let result = tx(writeContracts.Forging.mint(BigNumber.from("1")), update => {
                         if (update && (update.status === "confirmed" || update.status === 1)) {
+                          exitLoading(1);
+                        } else if (update && (update.status === "failed" || update.code === -32603 && update.data.message.includes("Cooldown"))) {
+                          message.error('Action not possible while in a cooldown!');
+
                           exitLoading(1);
                         }
                       });
@@ -260,7 +268,7 @@ function Home({ address, readContracts, writeContracts, tx, deployedContracts, l
                         await result;
                   }}>Trade for this</Button>
 
-                  Total Supply: {totalSupply1.toNumber()}
+                  Your Supply:  {myTokens && myTokens[1] ? myTokens[1].toNumber() : "..."}
                 </>
                 }
               </p>
@@ -290,7 +298,7 @@ function Home({ address, readContracts, writeContracts, tx, deployedContracts, l
               <p style={{color: "white", fontFamily: "futura" }}>
 
               {
-                  totalSupply2 === undefined ?
+                  myTokens && myTokens[2] === undefined ?
                   <>
                     <Skeleton.Button active />
                     <Skeleton active paragraph={{ rows: 1 }} />
@@ -302,6 +310,10 @@ function Home({ address, readContracts, writeContracts, tx, deployedContracts, l
                       enterLoading(2);
                       let result = tx(writeContracts.Forging.mint(BigNumber.from("2")), update => {
                         if (update && (update.status === "confirmed" || update.status === 1)) {
+                          exitLoading(2);
+                        } else if (update && (update.status === "failed" || update.code === -32603 && update.data.message.includes("Cooldown"))) {
+                          message.error('Action not possible while in a cooldown!');
+
                           exitLoading(2);
                         }
                       });
@@ -345,7 +357,7 @@ function Home({ address, readContracts, writeContracts, tx, deployedContracts, l
                         await result;
                   }}>Trade for this</Button>
 
-                  Total Supply: {totalSupply2.toNumber()}
+                  Your Supply:  {myTokens && myTokens[2] ? myTokens[2].toNumber() : "..."}
                 </>
                 }
                 
@@ -382,7 +394,7 @@ function Home({ address, readContracts, writeContracts, tx, deployedContracts, l
           </>
           }
           
-          <Checkbox.Group onChange={onChange} value={checkedList}>
+          <Checkbox.Group onChange={checkBoxGroupOnChange} value={checkedList}>
           <Row gutter={[16, 16]}>
           
           <Space>
@@ -416,7 +428,7 @@ function Home({ address, readContracts, writeContracts, tx, deployedContracts, l
           </Col>
           <Col span={8}>
             
-          { myToken1 !== undefined && myToken1 > 0 ?
+          { myTokens && myTokens[1] !== undefined && myTokens[1] > 0 ?
             <Card
               hoverable
               style={{ width: 200, borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}
@@ -433,7 +445,7 @@ function Home({ address, readContracts, writeContracts, tx, deployedContracts, l
             >
               <Row>
                   <p style={{color: "white", fontFamily: "futura" }}>
-                  <Checkbox value="1" style={{color: "white", fontFamily: "futura"}}>Carbon {myToken1 !== undefined ? `(${myToken1.toNumber()})` : null}</Checkbox>
+                  <Checkbox value="1" style={{color: "white", fontFamily: "futura"}}>Carbon {myTokens[1] !== undefined ? `(${myTokens[1].toNumber()})` : null}</Checkbox>
                   </p>
                 </Row>
             </Card>
@@ -442,7 +454,7 @@ function Home({ address, readContracts, writeContracts, tx, deployedContracts, l
           </Col>
           <Col span={8}>
 
-          { myToken2 !== undefined && myToken2 > 0 ?
+          { myTokens && myTokens[2] !== undefined && myTokens[2] > 0 ?
             <Card
               hoverable
               style={{ width: 200, borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}
@@ -459,7 +471,7 @@ function Home({ address, readContracts, writeContracts, tx, deployedContracts, l
             >
               <Row>
                   <p style={{color: "white", fontFamily: "futura" }}>
-                    <Checkbox value="2" style={{color: "white", fontFamily: "futura"}}>Wood {myToken2 !== undefined ? `(${myToken2.toNumber()})` : null}</Checkbox>
+                    <Checkbox value="2" style={{color: "white", fontFamily: "futura"}}>Wood {myTokens[2] !== undefined ? `(${myTokens[2].toNumber()})` : null}</Checkbox>
                   </p>
                 </Row>
             </Card>
@@ -547,6 +559,7 @@ function Home({ address, readContracts, writeContracts, tx, deployedContracts, l
               width={200}
               style={{ borderRadius: "10px" }}
               src="https://images.squarespace-cdn.com/content/v1/571079941bbee00fd7f0470f/1534799119980-PRY9DCBYV547AHYIOBSH/Iron+%284%29.JPG?format=2500w"
+              // src={useContractReader(readContracts, "Token", "uri(uint256)", [6])}
               preview={{
                 src: 'https://images.squarespace-cdn.com/content/v1/571079941bbee00fd7f0470f/1534799119980-PRY9DCBYV547AHYIOBSH/Iron+%284%29.JPG?format=2500w',
               }}
@@ -565,7 +578,7 @@ function Home({ address, readContracts, writeContracts, tx, deployedContracts, l
                             } else if (update && (update.status === "failed" || update.code === 4001)) {
                               message.error('Transaction failed!');
                               exitLoading(8);
-                            }
+                            } 
                           }
                           if (update && (update.status === "failed" || update.code === -32603)) {
                             message.error('Please grant approval to your inventory!');

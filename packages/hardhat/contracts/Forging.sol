@@ -3,10 +3,12 @@ pragma solidity >=0.8.0 <0.9.0;
 
 import "hardhat/console.sol";
 import "./Token.sol";
-import "@openzeppelin/contracts/access/Ownable.sol"; 
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
 
-contract Forging is Ownable {
-  Token private token;
+contract Forging is Ownable, Pausable {
+  Token private token; // the ERC1155 collection
+  // Weaponry we can forge:
   uint256 public constant SHIELD = 3;
   uint256 public constant CROSSBOW = 4;
   uint256 public constant ARROW = 5;
@@ -16,6 +18,7 @@ contract Forging is Ownable {
 
   /**
    * @notice Construct the Forging Contract
+   * @dev sets the owner() as well as the deployer.
    * @param tokenAddress the token address representing the ERC1155 Token.
    */
   constructor(Token tokenAddress) {
@@ -28,8 +31,19 @@ contract Forging is Ownable {
    */
   function mint(uint256 id) external onlyOwner {
     token.mint(msg.sender, id, 1);
+  }
 
-    // TODO: IMPLEMENT COOLDOWN PERIOD
+  /**
+   * @notice Get the metadata uri for any token type from the collection.
+   * @param _tokenId the token ID to get the uri for.
+   * @return the base URI for the collection.
+   */
+  function uri(uint256 _tokenId) public view returns (string memory) {
+    return token.uri(_tokenId);
+  }
+
+  function baseUri() external view onlyOwner returns (string memory) {
+    return token.baseUri();
   }
 
   /**
@@ -42,7 +56,13 @@ contract Forging is Ownable {
     return token.balanceOf(_of, id);
   }
 
-  function balanceOfBatch(address[] memory accounts, uint256[] memory ids) public view returns (uint256[] memory)
+  /**
+   * @notice Return the balance of multiple accounts and multiple IDs.
+   * @param accounts the accounts to get the balances of.
+   * @param ids the token IDs in the 1155 collection to get the balances of for the respective account.
+   * @return an array of balances corresponding to the incoming parameters.
+   */
+  function balanceOfBatch(address[] memory accounts, uint256[] memory ids) public view onlyOwner returns (uint256[] memory)
   {
     return token.balanceOfBatch(accounts, ids);
   }
@@ -57,20 +77,19 @@ contract Forging is Ownable {
   }
 
   /**
-   * @notice trade incoming ids to the destination id `_forId`.
-   * @dev Note that the frontend ensures that idsToTrade does not contain `_forId`.
-   * @param idsToTrade the incoming ids to trade into the `_forId` token.
-   * @param _forId the id to trade the incoming ids to.
+   * @notice trade incoming token types (`_idsToTrade`) to the destination id `_forId`.
+   * @notice example: you can trade tokens [0, 1] (_idsToTrade=[0, 1]) for two token 2's (_forId=2).
+   * @dev Note Calling condition: The frontend ensures that `_forId` is not in `_idsToTrade`.
+   * @param _idsToTrade the incoming ids to trade for the `_forId` token.
+   * @param _forId the id to trade the incoming id to.
    */
-  function trade(uint256[] calldata idsToTrade, uint256 _forId) external onlyOwner {
-    uint256[] memory values = _createOnesArray(idsToTrade.length);
-    
-    // We trade the incoming `idsToTrade` into the "_forId" token
+  function trade(uint256[] calldata _idsToTrade, uint256 _forId) external onlyOwner {
     // first, burn the incoming tokens:
-    token.burnBatch(msg.sender, idsToTrade, values);
+    token.burnBatch(msg.sender, _idsToTrade, _createOnesArray(_idsToTrade.length));
 
-    // then, mint the new _forId tokens (same amount as came in)
-    token.mint(msg.sender, _forId, idsToTrade.length);
+    // then, mint the new _forId tokens same amount as came in
+    // example: so swap 1 iron *and* 1 carbon for a total of 2 wood)
+    token.mint(msg.sender, _forId, _idsToTrade.length);
   }
 
   /**
