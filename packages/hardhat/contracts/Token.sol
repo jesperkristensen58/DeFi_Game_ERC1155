@@ -10,11 +10,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
-/// TODO: CHANGE TO 1 MINUTE IN COOLDOWN
-
 contract Token is ERC1155, ERC1155Burnable, ERC1155Supply, Ownable, Pausable {
   uint256 public cooldownTimer;
-  uint256 public constant COOLDOWNPERIOD = 1 seconds;
+  uint256 public constant COOLDOWNPERIOD = 1 minutes;
   // Raw materials used as source in forging
   uint256 public constant IRON = 0;
   uint256 public constant CARBON = 1;
