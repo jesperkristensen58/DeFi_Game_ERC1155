@@ -281,6 +281,7 @@ function App(props) {
       <Route exact path="/">
         {/* pass in any web3 props to this Home component. For example, yourLocalBalance */}
         <Home
+          connected={selectedChainId && localChainId == selectedChainId}
           address={address}
           readContracts={readContracts}
           writeContracts={writeContracts}

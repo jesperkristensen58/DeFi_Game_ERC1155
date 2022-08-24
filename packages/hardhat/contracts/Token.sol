@@ -10,9 +10,11 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
+/// TODO: CHANGE TO 1 MINUTE IN COOLDOWN
+
 contract Token is ERC1155, ERC1155Burnable, ERC1155Supply, Ownable, Pausable {
   uint256 public cooldownTimer;
-  uint256 public constant COOLDOWNPERIOD = 1 minutes;
+  uint256 public constant COOLDOWNPERIOD = 1 seconds;
   // Raw materials used as source in forging
   uint256 public constant IRON = 0;
   uint256 public constant CARBON = 1;
@@ -78,8 +80,15 @@ contract Token is ERC1155, ERC1155Burnable, ERC1155Supply, Ownable, Pausable {
       );
     }
 
+    /**
+     * @notice Helper function for now to show the NFT images on the website.
+     * @dev Images are obtained from `baseUri()` + "0.jpeg"
+     * @dev which would resolve to (eg): https://ipfs.io/ipfs/QmcWrgVBPpAURR3jjcYoBGsa1UT7trG7Ze6DfGaEvMAebm/0.jpeg
+     * @dev @TODO: Generalize this better.
+     * @return the base URL on IPFS to the folder with images.
+     */
     function baseUri() public view onlyOwner returns (string memory) {
-      return "ipfs://QmTdMVgk11h5hFjp7vbnb8h8NFm1o9rQZjoBSoiDpYSDwi/";
+      return "https://ipfs.io/ipfs/QmcWrgVBPpAURR3jjcYoBGsa1UT7trG7Ze6DfGaEvMAebm/";
     }
 
 

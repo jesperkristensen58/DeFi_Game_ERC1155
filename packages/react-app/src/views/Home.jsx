@@ -2,11 +2,11 @@ import { useContractReader } from "eth-hooks";
 import { ethers, BigNumber } from "ethers";
 import { React, useState } from "react";
 import { Col, Row, Divider, Typography, Avatar, Space, Button, Card, Image, Checkbox, Skeleton, message, Modal } from "antd";
-import { FireTwoTone } from '@ant-design/icons';
+import { FireTwoTone, CloseCircleOutlined } from '@ant-design/icons';
 
 const { Title } = Typography;
 
-function Home({ address, readContracts, writeContracts, tx }) {
+function Home({ address, readContracts, writeContracts, tx, connected }) {
   /*******************************************************************************************************************
   * 
   *  The main Frontend, props are passed in from the App.jsx
@@ -75,7 +75,7 @@ function Home({ address, readContracts, writeContracts, tx }) {
 
   // get the base url of the jsons for the items
   const baseUri = useContractReader(readContracts, "Forging", "baseUri()");
-
+  
   // do a batch call to get all token balances for this user
   const myTokens = useContractReader(readContracts, "Forging", "balanceOfBatch(address[],uint256[])",
     [Array(7).fill(ethers.utils.getAddress(address ? address : anyAddress)),
@@ -85,42 +85,61 @@ function Home({ address, readContracts, writeContracts, tx }) {
   const numUnique = (myTokens && (myTokens[0] !== undefined && myTokens[0] > 0)) + (myTokens && (myTokens[1] !== undefined && myTokens[1] > 0)) + (myTokens && (myTokens[2] !== undefined && myTokens[2] > 0));
 
   return (
-    <>
-            <Button block size="medium" style={{margin: 2}} loading={loadings[10]} onClick={
+      <Row>
+        <Col span={24}>
+      { connected ?
+      <>
+      <Row>
+        <Col>
+          { currentApproval ?
+            <Button block size="medium" loading={loadings[100]} ghost danger
+            icon={<CloseCircleOutlined />}
+            onClick={
                 async () => {
-                  enterLoading(10);
+                  enterLoading(100);
                   let result = tx(writeContracts.Token.setApprovalForAll(ethers.utils.getAddress(theForgingAddress ? theForgingAddress : anyAddress), 0), update => {
                     if (update && (update.status === "confirmed" || update.status === 1)) {
-                      exitLoading(10);
+                      exitLoading(100);
                       message.success("Access successfully revoked for all items!");
+                    } else if (update && (update.status === "failed" || update.code === 4001)) {
+                      message.error('Transaction failed!');
+                      exitLoading(100);
                     }
                   });
                   await result;
                 }}
               >
-                Revoke all
+                Revoke all access
               </Button>
+            : null
+            }
+          </Col>
+      </Row>
 
+      <Title level={4} style={{ color: "white", fontFamily: "futura" }}>Raw Materials</Title>
       <Row style={{margin: 12}} gutter={[16, 16]}>
+
         <Col span={8}>
           
-        <Space direction="vertical" size="middle" align="center">
+        <div align="right">
           <Card
             hoverable
             style={{ width: 300, borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}
-            bordered={true}
-            bodyStyle={{ backgroundColor: "#787276" }}
+            // bordered={true}
+            // bodyStyle={{ backgroundColor: "#787276" }}
+            headStyle={{backgroundColor: 'rgba(255, 255, 255, 0.)', border: 0 }}
+            bodyStyle={{backgroundColor: 'rgba(255, 0, 0, 0.)', border: 0 }}
             cover={<Image
               width={300}
               style={{ borderRadius: "10px" }}
-              src="https://images.squarespace-cdn.com/content/v1/571079941bbee00fd7f0470f/1534799119980-PRY9DCBYV547AHYIOBSH/Iron+%284%29.JPG?format=2500w"
+              src={myTokens ? `${baseUri}0.jpeg` : ""}
               preview={{
-                src: 'https://images.squarespace-cdn.com/content/v1/571079941bbee00fd7f0470f/1534799119980-PRY9DCBYV547AHYIOBSH/Iron+%284%29.JPG?format=2500w',
+                src: baseUri + "0.jpeg",
               }}
             />}
           >
             <Row>
-                <p style={{color: "white", fontFamily: "futura" }}>
+                <p style={{fontFamily: "futura" }} align="center">
                   
                 {
                   myTokens && (myTokens[0] === undefined) ?
@@ -188,26 +207,28 @@ function Home({ address, readContracts, writeContracts, tx }) {
                 </p>
               </Row>
           </Card>
-        </Space>
+        </div>
           
         </Col>
         <Col span={8}>
-        <Space direction="vertical" size="middle" align="center">
+        <div align="center">
           <Card
             bordered={true}
             style={{ width: 300, borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}
-            bodyStyle={{ backgroundColor: "#787276" }}
+            // bodyStyle={{ backgroundColor: "#787276" }}
+            headStyle={{backgroundColor: 'rgba(255, 255, 255, 0.)', border: 0 }}
+            bodyStyle={{backgroundColor: 'rgba(255, 0, 0, 0.)', border: 0 }}
             cover={<Image
               width={300}
               style={{ borderRadius: "10px" }}
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Glassy_carbon_and_a_1cm3_graphite_cube_HP68-79.jpg/2880px-Glassy_carbon_and_a_1cm3_graphite_cube_HP68-79.jpg"
+              src={myTokens ? `${baseUri}1.jpeg` : ""}
               preview={{
-                src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Glassy_carbon_and_a_1cm3_graphite_cube_HP68-79.jpg/2880px-Glassy_carbon_and_a_1cm3_graphite_cube_HP68-79.jpg',
+                src: baseUri + "1.jpeg",
               }}
             />}
           >
             <Row>
-              <p style={{color: "white", fontFamily: "futura" }}>
+              <p style={{fontFamily: "futura" }} align="center">
                 {
                   myTokens && myTokens[1] === undefined ?
                   <>
@@ -274,28 +295,31 @@ function Home({ address, readContracts, writeContracts, tx }) {
               </p>
             </Row>
           </Card>
-        </Space>
+        </div>
+
         </Col>
         <Col span={8}>
-        <Space direction="vertical" size="middle" align="center">
+        <div align="left">
         <Card
             hoverable
             bordered={true}
             style={{ width: 300, borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}
-            bodyStyle={{ backgroundColor: "#787276" }}
+            // bodyStyle={{ backgroundColor: "#787276" }}
+            headStyle={{backgroundColor: 'rgba(255, 255, 255, 0.)', border: 0 }}
+            bodyStyle={{backgroundColor: 'rgba(255, 0, 0, 0.)', border: 0 }}
             cover={
               <Image
                 width={300}
                 style={{ borderRadius: "10px" }}
-                src="https://upload.wikimedia.org/wikipedia/commons/7/76/Green_wood_visual_comparison.jpg"
-                preview={{
-                  src: 'https://upload.wikimedia.org/wikipedia/commons/7/76/Green_wood_visual_comparison.jpg',
-                }}
+                src={myTokens ? `${baseUri}2.jpeg` : ""}
+              preview={{
+                src: baseUri + "2.jpeg",
+              }}
               />
             }
           >
             <Row>
-              <p style={{color: "white", fontFamily: "futura" }}>
+              <p style={{fontFamily: "futura" }} align="center">
 
               {
                   myTokens && myTokens[2] === undefined ?
@@ -364,7 +388,7 @@ function Home({ address, readContracts, writeContracts, tx }) {
               </p>
               </Row>
           </Card>
-        </Space>
+        </div>
         </Col>
       </Row>
       <Row>
@@ -380,14 +404,14 @@ function Home({ address, readContracts, writeContracts, tx }) {
             {numUnique !== undefined && numUnique > 1 ?
                 <Title level={5} style={{ color: "white", fontFamily: "futura" }}>Select two or more elements to forge weaponry</Title>
               :
-              <Title level={5} style={{ color: "white", fontFamily: "futura" }}>You need two or more elements to forge weaponry</Title>
+              <Title level={5} style={{ color: "#CFCFC4", fontFamily: "futura" }}>You need two or more elements<br/>to forge weaponry</Title>
             }
             </>
           :
           <>
           { anyTokens !== undefined && anyTokens == false ?
             <>
-            <Title level={4} style={{ color: "red", fontFamily: "futura" }}>You have no elements<br />Mint new elements above!</Title>
+            <Title level={4} style={{ color: "#FF5733", fontFamily: "futura" }}>You are out of raw materials.<br/>Mint more above.</Title>
             </>
           : null
           }
@@ -406,21 +430,23 @@ function Home({ address, readContracts, writeContracts, tx }) {
               hoverable
               style={{ width: 200, borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}
               bordered={true}
-              bodyStyle={{ backgroundColor: "#787276" }}
+              headStyle={{backgroundColor: 'rgba(255, 255, 255, 0.)', border: 0 }}
+              bodyStyle={{backgroundColor: 'rgba(255, 0, 0, 0.)', border: 0 }}
               cover={<Image
                 width={200}
                 style={{ borderRadius: "10px" }}
-                src="https://images.squarespace-cdn.com/content/v1/571079941bbee00fd7f0470f/1534799119980-PRY9DCBYV547AHYIOBSH/Iron+%284%29.JPG?format=2500w"
-                preview={{
-                  src: 'https://images.squarespace-cdn.com/content/v1/571079941bbee00fd7f0470f/1534799119980-PRY9DCBYV547AHYIOBSH/Iron+%284%29.JPG?format=2500w',
-                }}
+                src={myTokens ? `${baseUri}0.jpeg` : ""}
+              preview={{
+                src: baseUri + "0.jpeg",
+              }}
               />}
             >
-              <Row>
+              <div align="center">
                   <p style={{color: "white", fontFamily: "futura" }}>
-                    <Checkbox value="0" style={{color: "white", fontFamily: "futura"}}>Iron {myTokens[0] !== undefined ? `(${myTokens[0].toNumber()})` : null}</Checkbox>
+                    <Checkbox value="0" style={{fontFamily: "futura"}}>Iron</Checkbox>
                   </p>
-                </Row>
+              </div>
+            
             </Card>
 
             : null }
@@ -433,21 +459,22 @@ function Home({ address, readContracts, writeContracts, tx }) {
               hoverable
               style={{ width: 200, borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}
               bordered={true}
-              bodyStyle={{ backgroundColor: "#787276" }}
+              headStyle={{backgroundColor: 'rgba(255, 255, 255, 0.)', border: 0 }}
+              bodyStyle={{backgroundColor: 'rgba(255, 0, 0, 0.)', border: 0 }}
               cover={<Image
                 width={200}
                 style={{ borderRadius: "10px" }}
-                src="https://images.squarespace-cdn.com/content/v1/571079941bbee00fd7f0470f/1534799119980-PRY9DCBYV547AHYIOBSH/Iron+%284%29.JPG?format=2500w"
-                preview={{
-                  src: 'https://images.squarespace-cdn.com/content/v1/571079941bbee00fd7f0470f/1534799119980-PRY9DCBYV547AHYIOBSH/Iron+%284%29.JPG?format=2500w',
-                }}
+                src={myTokens ? `${baseUri}1.jpeg` : ""}
+                  preview={{
+                src: baseUri + "1.jpeg",
+              }}
               />}
             >
-              <Row>
-                  <p style={{color: "white", fontFamily: "futura" }}>
-                  <Checkbox value="1" style={{color: "white", fontFamily: "futura"}}>Carbon {myTokens[1] !== undefined ? `(${myTokens[1].toNumber()})` : null}</Checkbox>
-                  </p>
-                </Row>
+              
+              <p style={{color: "white", fontFamily: "futura" }} align="center">
+                <Checkbox value="1" style={{fontFamily: "futura"}}>Carbon</Checkbox>
+              </p>
+                
             </Card>
           : null }
             
@@ -459,21 +486,22 @@ function Home({ address, readContracts, writeContracts, tx }) {
               hoverable
               style={{ width: 200, borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}
               bordered={true}
-              bodyStyle={{ backgroundColor: "#787276" }}
+              headStyle={{backgroundColor: 'rgba(255, 255, 255, 0.)', border: 0 }}
+              bodyStyle={{backgroundColor: 'rgba(255, 0, 0, 0.)', border: 0 }}
               cover={<Image
                 width={200}
                 style={{ borderRadius: "10px" }}
-                src="https://images.squarespace-cdn.com/content/v1/571079941bbee00fd7f0470f/1534799119980-PRY9DCBYV547AHYIOBSH/Iron+%284%29.JPG?format=2500w"
-                preview={{
-                  src: 'https://images.squarespace-cdn.com/content/v1/571079941bbee00fd7f0470f/1534799119980-PRY9DCBYV547AHYIOBSH/Iron+%284%29.JPG?format=2500w',
-                }}
+                src={myTokens ? `${baseUri}2.jpeg` : ""}
+                  preview={{
+                    src: baseUri + "2.jpeg",
+              }}
               />}
             >
-              <Row>
-                  <p style={{color: "white", fontFamily: "futura" }}>
-                    <Checkbox value="2" style={{color: "white", fontFamily: "futura"}}>Wood {myTokens[2] !== undefined ? `(${myTokens[2].toNumber()})` : null}</Checkbox>
+              
+                  <p style={{color: "white", fontFamily: "futura" }} align="center">
+                    <Checkbox value="2" style={{fontFamily: "futura"}}>Wood</Checkbox>
                   </p>
-                </Row>
+                
             </Card>
             : null }
 
@@ -536,17 +564,183 @@ function Home({ address, readContracts, writeContracts, tx }) {
           </Row>
           
         </Col>
-        <Col span={8}>
+        <Col span={12}>
 
+        <p style={{fontFamily: "futura" }}>
         <Title level={4} style={{ color: "white", fontFamily: "futura" }}>Your Forged Weaponry</Title>
+        <Row gutter={[16, 16]}>
+            <Col span={12}>
+              <div align="right">
 
-          // TODO: ADD ALL TOKENS HERE [3-5] IN THE SAME WAY...
-          // TODO: GET THE IPFS PATH TO IMAGES (AND CONFIRM THAT WORKS)...
-          // TODO: Would be interesting with a loop here ... but that requires the tokenURI?
-          // TODO: Maybe overwrite tokenURI in 1155 to just hardcode the image paths (if ipfs is slow)...
-          // TODO: So yeah you would need to get the image paths of all tokens, maybe batch it?
+              {/********************************
+          *    TOKEN 3
+          **********************************/}
+          { myTokens && myTokens[3] !== undefined && myTokens[3] > 0 ?
+          <Card
+            hoverable
+            style={{ width: 200, borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}
+            bordered={true}
+            headStyle={{backgroundColor: 'rgba(255, 255, 255, 0.)', border: 0 }}
+            bodyStyle={{backgroundColor: 'rgba(255, 0, 0, 0.)', border: 0 }}
+            cover={<Image
+              width={200}
+              style={{ borderRadius: "10px" }}
+              src={myTokens ? `${baseUri}3.jpeg` : ""}
+              preview={{
+                src: baseUri + "3.jpeg",
+              }}
+            />}
+          >
+            <div align="center">
+              <Button size="medium" loading={loadings[10]} onClick={
+                    async () => {
+                      enterLoading(10);
+                      await getApproval();
+                      let result = tx(writeContracts.Forging.burn(3), update => {
+                          if (currentApproval) {
+                            if (update && (update.status === "confirmed" || update.status === 1)) {
+                              message.success('Success!');
+                              exitLoading(10);
+                            } else if (update && (update.status === "failed" || update.code === 4001)) {
+                              message.error('Transaction failed!');
+                              exitLoading(10);
+                            } 
+                          }
+                          if (update && (update.status === "failed" || update.code === -32603)) {
+                            message.error('Please grant approval to your inventory!');
+                            exitLoading(10);
+                          }
+                        });
+                        await result; 
+                  }}
+                >
+                  Burn ({BigNumber.from(myTokens[3]).toNumber()})
+                </Button>
+                </div>
+              
+          </Card>
+          : null 
+          }
 
-          {/********************************
+
+          </div>
+            </Col>
+            <Col span={12}>
+
+            <div align="left">
+
+              {/********************************
+          *    TOKEN 4
+          **********************************/}
+          { myTokens && myTokens[4] !== undefined && myTokens[4] > 0 ?
+          <Card
+            hoverable
+            style={{ width: 200, borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}
+            bordered={true}
+            headStyle={{backgroundColor: 'rgba(255, 255, 255, 0.)', border: 0 }}
+            bodyStyle={{backgroundColor: 'rgba(255, 0, 0, 0.)', border: 0 }}
+            cover={<Image
+              width={200}
+              style={{ borderRadius: "10px" }}
+              src={myTokens ? `${baseUri}4.jpeg` : ""}
+              preview={{
+                src: baseUri + "4.jpeg",
+              }}
+            />}
+          >
+            <div align="center">
+              <Button size="medium" loading={loadings[9]} onClick={
+                    async () => {
+                      enterLoading(9);
+                      await getApproval();
+                      let result = tx(writeContracts.Forging.burn(4), update => {
+                          if (currentApproval) {
+                            if (update && (update.status === "confirmed" || update.status === 1)) {
+                              message.success('Success!');
+                              exitLoading(9);
+                            } else if (update && (update.status === "failed" || update.code === 4001)) {
+                              message.error('Transaction failed!');
+                              exitLoading(9);
+                            } 
+                          }
+                          if (update && (update.status === "failed" || update.code === -32603)) {
+                            message.error('Please grant approval to your inventory!');
+                            exitLoading(9);
+                          }
+                        });
+                        await result; 
+                  }}
+                >
+                  Burn ({BigNumber.from(myTokens[4]).toNumber()})
+                </Button>
+              </div>
+          </Card>
+          : null 
+          }
+
+
+            </div>
+            </Col>
+
+            <Col span={12}>
+
+            <div align="right">
+              {/********************************
+          *    TOKEN 5
+          **********************************/}
+          { myTokens && myTokens[5] !== undefined && myTokens[5] > 0 ?
+          <Card
+            hoverable
+            style={{ width: 200, borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}
+            bordered={true}
+            headStyle={{backgroundColor: 'rgba(255, 255, 255, 0.)', border: 0 }}
+            bodyStyle={{backgroundColor: 'rgba(255, 0, 0, 0.)', border: 0 }}
+            cover={<Image
+              width={200}
+              style={{ borderRadius: "10px" }}
+              src={myTokens ? `${baseUri}5.jpeg` : ""}
+              preview={{
+                src: baseUri + "5.jpeg",
+              }}
+            />}
+          >
+              <div align="center">
+              <Button size="medium" loading={loadings[7]} onClick={
+                    async () => {
+                      enterLoading(7);
+                      await getApproval();
+                      let result = tx(writeContracts.Forging.burn(5), update => {
+                          if (currentApproval) {
+                            if (update && (update.status === "confirmed" || update.status === 1)) {
+                              message.success('Success!');
+                              exitLoading(7);
+                            } else if (update && (update.status === "failed" || update.code === 4001)) {
+                              message.error('Transaction failed!');
+                              exitLoading(7);
+                            } 
+                          }
+                          if (update && (update.status === "failed" || update.code === -32603)) {
+                            message.error('Please grant approval to your inventory!');
+                            exitLoading(7);
+                          }
+                        });
+                        await result; 
+                  }}
+                >
+                  Burn ({BigNumber.from(myTokens[5]).toNumber()})
+                </Button>
+                </div>
+              
+          </Card>
+          : null 
+          }
+
+            </div>
+            </Col>
+            <Col span={12}>
+
+            <div align="left">
+              {/********************************
           *    TOKEN 6
           **********************************/}
           { myTokens && myTokens[6] !== undefined && myTokens[6] > 0 ?
@@ -554,18 +748,18 @@ function Home({ address, readContracts, writeContracts, tx }) {
             hoverable
             style={{ width: 200, borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}
             bordered={true}
-            bodyStyle={{ backgroundColor: "#787276" }}
+            headStyle={{backgroundColor: 'rgba(255, 255, 255, 0.)', border: 0 }}
+            bodyStyle={{backgroundColor: 'rgba(255, 0, 0, 0.)', border: 0 }}
             cover={<Image
               width={200}
               style={{ borderRadius: "10px" }}
-              src="https://images.squarespace-cdn.com/content/v1/571079941bbee00fd7f0470f/1534799119980-PRY9DCBYV547AHYIOBSH/Iron+%284%29.JPG?format=2500w"
-              // src={useContractReader(readContracts, "Token", "uri(uint256)", [6])}
+              src={myTokens ? `${baseUri}6.jpeg` : ""}
               preview={{
-                src: 'https://images.squarespace-cdn.com/content/v1/571079941bbee00fd7f0470f/1534799119980-PRY9DCBYV547AHYIOBSH/Iron+%284%29.JPG?format=2500w',
+                src: baseUri + "6.jpeg",
               }}
             />}
           >
-            
+            <div align="center">
               <Button size="medium" loading={loadings[8]} onClick={
                     async () => {
                       enterLoading(8);
@@ -590,13 +784,26 @@ function Home({ address, readContracts, writeContracts, tx }) {
                 >
                   Burn ({BigNumber.from(myTokens[6]).toNumber()})
                 </Button>
+                </div>
               
           </Card>
           : null 
           }
+
+          </div>
+            </Col>
+        </Row>
+
+          </p>
         </Col>
+      
       </Row>
     </>
+  
+  : null
+  }
+  </Col>
+  </Row>
   );
 }
 

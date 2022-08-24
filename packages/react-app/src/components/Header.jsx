@@ -7,8 +7,6 @@ const { Title, Text } = Typography;
 
 export default function Header({ link, title, subTitle, ...props }) {
 
-
-
   return (<div>
           <div>
           <Row>
@@ -34,7 +32,11 @@ export default function Header({ link, title, subTitle, ...props }) {
                   </svg>
                 </div>
             :
-            <div></div>
+            <div>
+              <div className="mo-fire">
+                <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="125px" height="189.864px" viewBox="0 0 125 189.864"></svg>
+              </div>
+            </div>
             }
             </Col>
           

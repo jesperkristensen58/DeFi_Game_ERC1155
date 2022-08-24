@@ -14,6 +14,11 @@ body {
   background-size: cover;
 }
 
+.ant-checkbox-checked .ant-checkbox-inner {
+  background-color: "black";
+  border-color: "black";
+}
+
 .mo-fire {
   width: 100px;
   height: auto;
