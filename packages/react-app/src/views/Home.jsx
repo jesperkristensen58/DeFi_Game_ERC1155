@@ -1,7 +1,7 @@
 import { useContractReader } from "eth-hooks";
 import { ethers, BigNumber } from "ethers";
 import { React, useState } from "react";
-import { Col, Row, Divider, Typography, Button, Card, Image, Checkbox, Skeleton, message } from "antd";
+import { Col, Row, Divider, Typography, Button, Card, Image, Checkbox, Skeleton, message, Space } from "antd";
 import { FireTwoTone, CloseCircleOutlined } from '@ant-design/icons';
 
 const { Title } = Typography;
@@ -87,13 +87,17 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
   return (
       <Row>
         <Col span={24}>
+      
       { connected ?
       <>
       <Row>
         <Col>
+
+          <div align="right">
           { currentApproval ?
             <Button block size="medium" loading={loadings[100]} ghost danger
             icon={<CloseCircleOutlined />}
+            style={{marginLeft:"10px"}}
             onClick={
                 async () => {
                   enterLoading(100);
@@ -111,8 +115,10 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
               >
                 Revoke all access
               </Button>
-            : null
+            :
+            <Button block size="medium" style={{marginLeft:"10px", borderColor:'rgba(0,0,0,0)', color: 'rgba(255,255,255,0)'}} loading={loadings[100]} ghost disabled icon={<CloseCircleOutlined />}>Revoke all access</Button>
             }
+            </div>
           </Col>
       </Row>
 
@@ -124,11 +130,8 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
         <div align="right">
           <Card
             hoverable
-            style={{ width: 300, borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}
-            // bordered={true}
-            // bodyStyle={{ backgroundColor: "#787276" }}
-            headStyle={{backgroundColor: 'rgba(255, 255, 255, 0.)', border: 0 }}
-            bodyStyle={{backgroundColor: 'rgba(255, 0, 0, 0.)', border: 0 }}
+            style={{ width: 300, borderTopLeftRadius: "10px",
+                    backgroundColor: 'rgba(255,255,255,0.2)', borderTopRightRadius: "10px", border: 0 }}
             cover={<Image
               width={300}
               style={{ borderRadius: "10px" }}
@@ -139,7 +142,7 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
             />}
           >
             <Row>
-                <p style={{fontFamily: "futura" }} align="center">
+                <p style={{fontFamily: "futura", color: "white" }} align="center">
                   
                 {
                   myTokens && (myTokens[0] === undefined) ?
@@ -169,9 +172,7 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
 
                   <Button block size="medium" style={{margin: 2}} disabled={checkedList.length == 0} loading={loadings[3]} onClick={
                     async () => {
-                      enterLoading(3);
-                      await getApproval();
-
+                      
                       var i = 0;
                       const target = '0';
                       while (i < checkedList.length) {
@@ -182,23 +183,33 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
                         }
                       }
 
-                      let convertedNumbers = checkedList.map( item => { return BigNumber.from(item) });                      
-                      let result = tx(writeContracts.Forging.trade(convertedNumbers, BigNumber.from(target)), update => {
-                          if (currentApproval) {
-                            if (update && (update.status === "confirmed" || update.status === 1)) {
-                              message.success('Success!');
-                              exitLoading(3);
-                            } else if (update && (update.status === "failed" || update.code === 4001)) {
-                              message.error('Transaction failed!');
+                      if (checkedList.length > 0) {
+
+                        enterLoading(3);
+                        await getApproval();
+
+                        let convertedNumbers = checkedList.map( item => { return BigNumber.from(item) });                      
+                        let result = tx(writeContracts.Forging.trade(convertedNumbers, BigNumber.from(target)), update => {
+                            if (currentApproval) {
+                              if (update && (update.status === "confirmed" || update.status === 1)) {
+                                message.success('Success!');
+                                exitLoading(3);
+                              } else if (update && (update.status === "failed" || update.code === 4001)) {
+                                message.error('Transaction failed!');
+                                exitLoading(3);
+                              }
+                            }
+                            if (update && (update.status === "failed" || update.code === -32603)) {
+                              message.error('Please grant approval to your inventory!');
                               exitLoading(3);
                             }
-                          }
-                          if (update && (update.status === "failed" || update.code === -32603)) {
-                            message.error('Please grant approval to your inventory!');
-                            exitLoading(3);
-                          }
-                        });
-                        await result;
+                          });
+                          await result;
+                        
+                      } else {
+                        message.warning("that's the same element. no action taken");
+                        exitLoading(3);
+                      }
                       
                   }}>Trade for this</Button>
                   Your Supply:  {myTokens && myTokens[0] ? myTokens[0].toNumber() : "..."}
@@ -213,11 +224,10 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
         <Col span={8}>
         <div align="center">
           <Card
+            hoverable
             bordered={true}
-            style={{ width: 300, borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}
-            // bodyStyle={{ backgroundColor: "#787276" }}
-            headStyle={{backgroundColor: 'rgba(255, 255, 255, 0.)', border: 0 }}
-            bodyStyle={{backgroundColor: 'rgba(255, 0, 0, 0.)', border: 0 }}
+            style={{ width: 300, borderTopLeftRadius: "10px",
+                    backgroundColor: 'rgba(255,255,255,0.2)', borderTopRightRadius: "10px", border: 0 }}
             cover={<Image
               width={300}
               style={{ borderRadius: "10px" }}
@@ -228,7 +238,7 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
             />}
           >
             <Row>
-              <p style={{fontFamily: "futura" }} align="center">
+              <p style={{ color: "white", fontFamily: "futura" }} align="center">
                 {
                   myTokens && myTokens[1] === undefined ?
                   <>
@@ -257,8 +267,7 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
 
                   <Button block size="medium" style={{margin: 2}} disabled={checkedList.length == 0} loading={loadings[4]} onClick={
                     async () => {
-                      enterLoading(4);
-                      await getApproval();
+                      
 
                       var i = 0;
                       const target = '1';
@@ -270,23 +279,32 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
                         }
                       }
 
-                      let convertedNumbers = checkedList.map( item => { return BigNumber.from(item) });                      
-                      let result = tx(writeContracts.Forging.trade(convertedNumbers, BigNumber.from(target)), update => {
-                          if (currentApproval) {
-                            if (update && (update.status === "confirmed" || update.status === 1)) {
-                              message.success('Success!');
-                              exitLoading(4);
-                            } else if (update && (update.status === "failed" || update.code === 4001)) {
-                              message.error('Transaction failed!');
+                      if (checkedList.length > 0) {
+
+                        enterLoading(4);
+                        await getApproval();
+
+                        let convertedNumbers = checkedList.map( item => { return BigNumber.from(item) });                      
+                        let result = tx(writeContracts.Forging.trade(convertedNumbers, BigNumber.from(target)), update => {
+                            if (currentApproval) {
+                              if (update && (update.status === "confirmed" || update.status === 1)) {
+                                message.success('Success!');
+                                exitLoading(4);
+                              } else if (update && (update.status === "failed" || update.code === 4001)) {
+                                message.error('Transaction failed!');
+                                exitLoading(4);
+                              }
+                            }
+                            if (update && (update.status === "failed" || update.code === -32603)) {
+                              message.error('Please grant approval to your inventory!');
                               exitLoading(4);
                             }
-                          }
-                          if (update && (update.status === "failed" || update.code === -32603)) {
-                            message.error('Please grant approval to your inventory!');
-                            exitLoading(4);
-                          }
-                        });
-                        await result;
+                          });
+                          await result;
+                      } else {
+                        message.warning("that's the same element. no action taken");
+                        exitLoading(4);
+                      }
                   }}>Trade for this</Button>
 
                   Your Supply:  {myTokens && myTokens[1] ? myTokens[1].toNumber() : "..."}
@@ -303,10 +321,8 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
         <Card
             hoverable
             bordered={true}
-            style={{ width: 300, borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}
-            // bodyStyle={{ backgroundColor: "#787276" }}
-            headStyle={{backgroundColor: 'rgba(255, 255, 255, 0.)', border: 0 }}
-            bodyStyle={{backgroundColor: 'rgba(255, 0, 0, 0.)', border: 0 }}
+            style={{ width: 300, borderTopLeftRadius: "10px",
+                    backgroundColor: 'rgba(255,255,255,0.2)', borderTopRightRadius: "10px", border: 0 }}
             cover={
               <Image
                 width={300}
@@ -319,7 +335,7 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
             }
           >
             <Row>
-              <p style={{fontFamily: "futura" }} align="center">
+              <p style={{fontFamily: "futura", color: "white" }} align="center">
 
               {
                   myTokens && myTokens[2] === undefined ?
@@ -349,8 +365,6 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
 
                   <Button block size="medium" style={{margin: 2}} disabled={checkedList.length == 0} loading={loadings[5]} onClick={
                     async () => {
-                      enterLoading(5);
-                      await getApproval();
 
                       var i = 0;
                       const target = '2';
@@ -362,23 +376,32 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
                         }
                       }
 
-                      let convertedNumbers = checkedList.map( item => { return BigNumber.from(item) });                      
-                      let result = tx(writeContracts.Forging.trade(convertedNumbers, BigNumber.from(target)), update => {
-                          if (currentApproval) {
-                            if (update && (update.status === "confirmed" || update.status === 1)) {
-                              message.success('Success!');
-                              exitLoading(5);
-                            } else if (update && (update.status === "failed" || update.code === 4001)) {
-                              message.error('Transaction failed!');
+                      if (checkedList.length > 0) {
+
+                        enterLoading(5);
+                        await getApproval();  
+
+                        let convertedNumbers = checkedList.map( item => { return BigNumber.from(item) });                      
+                        let result = tx(writeContracts.Forging.trade(convertedNumbers, BigNumber.from(target)), update => {
+                            if (currentApproval) {
+                              if (update && (update.status === "confirmed" || update.status === 1)) {
+                                message.success('Success!');
+                                exitLoading(5);
+                              } else if (update && (update.status === "failed" || update.code === 4001)) {
+                                message.error('Transaction failed!');
+                                exitLoading(5);
+                              }
+                            }
+                            if (update && (update.status === "failed" || update.code === -32603)) {
+                              message.error('Please grant approval to your inventory!');
                               exitLoading(5);
                             }
-                          }
-                          if (update && (update.status === "failed" || update.code === -32603)) {
-                            message.error('Please grant approval to your inventory!');
-                            exitLoading(5);
-                          }
-                        });
-                        await result;
+                          });
+                          await result;
+                      } else {
+                        message.warning("that's the same element. no action taken");
+                        exitLoading(5);
+                      }
                   }}>Trade for this</Button>
 
                   Your Supply:  {myTokens && myTokens[2] ? myTokens[2].toNumber() : "..."}
@@ -425,55 +448,56 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
           </Col>
           </Row>
           
-          <Checkbox.Group onChange={checkBoxGroupOnChange} value={checkedList}>
-
           <Row gutter={16}>
+            <Col span={24}>
+
+            <Checkbox.Group onChange={checkBoxGroupOnChange} style={{width: "100%"}} value={checkedList}>
           
+          <Row>
           <Col span={8}>
 
-            <div align="center">
+            <div align="right" style={{fontFamily: "futura", color: "white"}}>
 
             { myTokens && myTokens[0] !== undefined && myTokens[0] > 0 ?
-
-            <Card
-              hoverable
-              style={{ width: 200, borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}
-              bordered={true}
-              headStyle={{backgroundColor: 'rgba(255, 255, 255, 0.)', border: 0 }}
-              bodyStyle={{backgroundColor: 'rgba(255, 0, 0, 0.)', border: 0 }}
-              cover={<Image
-                width={200}
-                style={{ borderRadius: "10px" }}
-                src={myTokens ? `${baseUri}0.jpeg` : ""}
-              preview={{
-                src: baseUri + "0.jpeg",
-              }}
-              />}
-            >
-              <div align="center">
-                  <p style={{color: "white", fontFamily: "futura" }}>
-                    <Checkbox value="0" style={{fontFamily: "futura"}}>Iron</Checkbox>
-                  </p>
-              </div>
+            <>
+            <div align="center">
+                <Card
+                  hoverable
+                  style={{ width: 300, borderTopLeftRadius: "10px",
+                        backgroundColor: 'rgba(255,255,255,0.2)', borderTopRightRadius: "10px", border: 0 }}
+                  bordered={true}
+                  cover={<Image
+                    width={200}
+                    style={{ borderRadius: "10px" }}
+                    src={myTokens ? `${baseUri}0.jpeg` : ""}
+                  preview={{
+                    src: baseUri + "0.jpeg",
+                  }}
+                  />}
+                >
+              <Checkbox value="0" style={{color: "white" }}>Iron</Checkbox>
             
             </Card>
+            </div>
+            </>
 
             : null }
 
           </div>
+
           </Col>
 
-          <Col span={8}>
 
-          <div align="center">
+          <Col span={8}>
+            
+          <div align="center" style={{fontFamily: "futura", color: "white" }}>
             
           { myTokens && myTokens[1] !== undefined && myTokens[1] > 0 ?
             <Card
               hoverable
-              style={{ width: 200, borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}
+              style={{ width: 300, borderTopLeftRadius: "10px",
+                    backgroundColor: 'rgba(255,255,255,0.2)', borderTopRightRadius: "10px", border: 0 }}
               bordered={true}
-              headStyle={{backgroundColor: 'rgba(255, 255, 255, 0.)', border: 0 }}
-              bodyStyle={{backgroundColor: 'rgba(255, 0, 0, 0.)', border: 0 }}
               cover={<Image
                 width={200}
                 style={{ borderRadius: "10px" }}
@@ -482,29 +506,27 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
                 src: baseUri + "1.jpeg",
               }}
               />}
-            >
-              
-              <p style={{color: "white", fontFamily: "futura" }} align="center">
-                <Checkbox value="1" style={{fontFamily: "futura"}}>Carbon</Checkbox>
-              </p>
-                
+            > 
+              <Checkbox value="1" style={{color: "white" }}>Carbon</Checkbox>   
             </Card>
           : null }
 
           </div>
+          
             
           </Col>
           <Col span={8}>
 
-          <div align="center">
+          <div align="left" style={{fontFamily: "futura", color: "white" }}>
 
           { myTokens && myTokens[2] !== undefined && myTokens[2] > 0 ?
+
+          <><div align="center">
             <Card
               hoverable
-              style={{ width: 200, borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}
+              style={{ width: 300, borderTopLeftRadius: "10px",
+                    backgroundColor: 'rgba(255,255,255,0.2)', borderTopRightRadius: "10px", border: 0 }}
               bordered={true}
-              headStyle={{backgroundColor: 'rgba(255, 255, 255, 0.)', border: 0 }}
-              bodyStyle={{backgroundColor: 'rgba(255, 0, 0, 0.)', border: 0 }}
               cover={<Image
                 width={200}
                 style={{ borderRadius: "10px" }}
@@ -515,18 +537,23 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
               />}
             >
               
-                  <p style={{color: "white", fontFamily: "futura" }} align="center">
-                    <Checkbox value="2" style={{fontFamily: "futura"}}>Wood</Checkbox>
-                  </p>
+                <Checkbox value="2" style={{color: "white" }}>Wood</Checkbox>
                 
             </Card>
+            
+            </div>
+            </>
             : null }
 
             </div>
           </Col>
-          
+
           </Row>
+          
+          
           </Checkbox.Group>
+          </Col>
+          </Row>
 
           <Row style={{margin: 12}}>
             <Col span={10}></Col>
@@ -594,12 +621,12 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
           *    TOKEN 3
           **********************************/}
           { myTokens && myTokens[3] !== undefined && myTokens[3] > 0 ?
+          <><div align="center">
           <Card
             hoverable
-            style={{ width: 200, borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}
+            style={{ width: 300, borderTopLeftRadius: "10px",
+                    backgroundColor: 'rgba(255,255,255,0.2)', borderTopRightRadius: "10px", border: 0 }}
             bordered={true}
-            headStyle={{backgroundColor: 'rgba(255, 255, 255, 0.)', border: 0 }}
-            bodyStyle={{backgroundColor: 'rgba(255, 0, 0, 0.)', border: 0 }}
             cover={<Image
               width={200}
               style={{ borderRadius: "10px" }}
@@ -609,7 +636,7 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
               }}
             />}
           >
-            <div align="center">
+            
               <Button size="medium" loading={loadings[10]} onClick={
                     async () => {
                       enterLoading(10);
@@ -634,9 +661,10 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
                 >
                   Burn ({BigNumber.from(myTokens[3]).toNumber()})
                 </Button>
-                </div>
+                
               
           </Card>
+          </div></>
           : null 
           }
 
@@ -651,12 +679,12 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
           *    TOKEN 4
           **********************************/}
           { myTokens && myTokens[4] !== undefined && myTokens[4] > 0 ?
+          <><div align="center">
           <Card
             hoverable
-            style={{ width: 200, borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}
+            style={{ width: 300, borderTopLeftRadius: "10px",
+                    backgroundColor: 'rgba(255,255,255,0.2)', borderTopRightRadius: "10px", border: 0 }}
             bordered={true}
-            headStyle={{backgroundColor: 'rgba(255, 255, 255, 0.)', border: 0 }}
-            bodyStyle={{backgroundColor: 'rgba(255, 0, 0, 0.)', border: 0 }}
             cover={<Image
               width={200}
               style={{ borderRadius: "10px" }}
@@ -666,7 +694,7 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
               }}
             />}
           >
-            <div align="center">
+            
               <Button size="medium" loading={loadings[9]} onClick={
                     async () => {
                       enterLoading(9);
@@ -691,12 +719,11 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
                 >
                   Burn ({BigNumber.from(myTokens[4]).toNumber()})
                 </Button>
-              </div>
           </Card>
+
+          </div></>
           : null 
           }
-
-
             </div>
             </Col>
 
@@ -707,12 +734,13 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
           *    TOKEN 5
           **********************************/}
           { myTokens && myTokens[5] !== undefined && myTokens[5] > 0 ?
+          <>
+          <div align="center">
           <Card
             hoverable
-            style={{ width: 200, borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}
+            style={{ width: 300, borderTopLeftRadius: "10px",
+                    backgroundColor: 'rgba(255,255,255,0.2)', borderTopRightRadius: "10px", border: 0 }}
             bordered={true}
-            headStyle={{backgroundColor: 'rgba(255, 255, 255, 0.)', border: 0 }}
-            bodyStyle={{backgroundColor: 'rgba(255, 0, 0, 0.)', border: 0 }}
             cover={<Image
               width={200}
               style={{ borderRadius: "10px" }}
@@ -722,7 +750,7 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
               }}
             />}
           >
-              <div align="center">
+              
               <Button size="medium" loading={loadings[7]} onClick={
                     async () => {
                       enterLoading(7);
@@ -747,9 +775,8 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
                 >
                   Burn ({BigNumber.from(myTokens[5]).toNumber()})
                 </Button>
-                </div>
-              
           </Card>
+          </div></>
           : null 
           }
 
@@ -762,12 +789,13 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
           *    TOKEN 6
           **********************************/}
           { myTokens && myTokens[6] !== undefined && myTokens[6] > 0 ?
+          <>
+          <div align="center">
           <Card
             hoverable
-            style={{ width: 200, borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}
+            style={{ width: 300, borderTopLeftRadius: "10px",
+                    backgroundColor: 'rgba(255,255,255,0.2)', borderTopRightRadius: "10px", border: 0 }}
             bordered={true}
-            headStyle={{backgroundColor: 'rgba(255, 255, 255, 0.)', border: 0 }}
-            bodyStyle={{backgroundColor: 'rgba(255, 0, 0, 0.)', border: 0 }}
             cover={<Image
               width={200}
               style={{ borderRadius: "10px" }}
@@ -777,7 +805,7 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
               }}
             />}
           >
-            <div align="center">
+            
               <Button size="medium" loading={loadings[8]} onClick={
                     async () => {
                       enterLoading(8);
@@ -801,10 +829,12 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
                   }}
                 >
                   Burn ({BigNumber.from(myTokens[6]).toNumber()})
+                
                 </Button>
-                </div>
               
           </Card>
+          </div>
+          </>
           : null 
           }
 
