@@ -1,7 +1,7 @@
 import { useContractReader } from "eth-hooks";
 import { ethers, BigNumber } from "ethers";
 import { React, useState } from "react";
-import { Col, Row, Divider, Typography, Avatar, Space, Button, Card, Image, Checkbox, Skeleton, message, Modal } from "antd";
+import { Col, Row, Divider, Typography, Button, Card, Image, Checkbox, Skeleton, message } from "antd";
 import { FireTwoTone, CloseCircleOutlined } from '@ant-design/icons';
 
 const { Title } = Typography;
@@ -397,8 +397,13 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
       <Row gutter={[16, 16]}>
         <Col span={12}>
           
-          <Title level={4} style={{ color: "white", fontFamily: "futura" }}>Your Elements</Title>
-
+          <Row>
+            <Col span={24}>
+              <Title level={4} style={{ color: "white", fontFamily: "futura" }}>Your Elements</Title>
+            </Col>
+          </Row>
+          <Row>
+          <Col span={24}>
           { anyTokens !== undefined && anyTokens ? 
             <>
             {numUnique !== undefined && numUnique > 1 ?
@@ -417,12 +422,16 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
           }
           </>
           }
+          </Col>
+          </Row>
           
           <Checkbox.Group onChange={checkBoxGroupOnChange} value={checkedList}>
-          <Row gutter={[16, 16]}>
+
+          <Row gutter={16}>
           
-          <Space>
           <Col span={8}>
+
+            <div align="center">
 
             { myTokens && myTokens[0] !== undefined && myTokens[0] > 0 ?
 
@@ -451,8 +460,12 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
 
             : null }
 
+          </div>
           </Col>
+
           <Col span={8}>
+
+          <div align="center">
             
           { myTokens && myTokens[1] !== undefined && myTokens[1] > 0 ?
             <Card
@@ -477,9 +490,13 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
                 
             </Card>
           : null }
+
+          </div>
             
           </Col>
           <Col span={8}>
+
+          <div align="center">
 
           { myTokens && myTokens[2] !== undefined && myTokens[2] > 0 ?
             <Card
@@ -505,8 +522,9 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
             </Card>
             : null }
 
+            </div>
           </Col>
-          </Space>
+          
           </Row>
           </Checkbox.Group>
 
