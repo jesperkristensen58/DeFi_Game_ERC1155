@@ -129,7 +129,8 @@ yarn surge
   ✨  Done in 8.15s.
 ```
 
-That is it. The website is now live at the address: <a href="productive-dock.surge.sh">productive-dock.surge.sh</a>!
+That is it. When I ran this in the final actual context I got the following website detials:
+The website is now live at the address: <a href="https://soggy-hen.surge.sh/">soggy-hen.surge.sh</a>!
 
 ## Acknowledgements
 
