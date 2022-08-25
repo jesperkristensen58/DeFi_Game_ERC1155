@@ -8,12 +8,11 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
-contract Token is ERC1155, ERC1155Burnable, ERC1155Supply, Ownable, Pausable {
+contract Token is ERC1155, ERC1155Burnable, ERC1155Supply, Ownable {
   string public name = "The Forge of Chains";
   string public symbol = "TFC";
+  string public constant imageUri = "https://ipfs.io/ipfs/QmcWrgVBPpAURR3jjcYoBGsa1UT7trG7Ze6DfGaEvMAebm/";
 
-  uint256 public cooldownTimer;
-  uint256 public constant COOLDOWNPERIOD = 1 minutes;
   // Raw materials used as source in forging
   uint256 public constant IRON = 0;
   uint256 public constant CARBON = 1;
@@ -27,7 +26,6 @@ contract Token is ERC1155, ERC1155Burnable, ERC1155Supply, Ownable, Pausable {
 
   /**
    * @notice Mint `amount` unit of tokens of type `id` to the addres `to`.
-   * @notice There is a cooldown period between mints, see `cooldownTimer`.
    * @param _to the address to mint the tokens to.
    * @param id the token id to mint.
    * @param amount the amount of tokens to mint.
@@ -79,17 +77,7 @@ contract Token is ERC1155, ERC1155Burnable, ERC1155Supply, Ownable, Pausable {
       );
     }
 
-    /**
-     * @notice Helper function for now to show the NFT images on the website.
-     * @return the base URL on IPFS to the folder with images.
-     */
-    function imageUri() public pure returns (string memory) {
-      return "https://ipfs.io/ipfs/QmcWrgVBPpAURR3jjcYoBGsa1UT7trG7Ze6DfGaEvMAebm/";
-    }
-
-
   /**
-     * @notice This hook is used to govern the cooldown periods of tokens
      * @dev Hook that is called before any token transfer. This includes minting
      * and burning, as well as batched variants.
      *
@@ -118,35 +106,5 @@ contract Token is ERC1155, ERC1155Burnable, ERC1155Supply, Ownable, Pausable {
         bytes memory data
     ) internal override(ERC1155, ERC1155Supply) {
       super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
-      
-      // This hook ensures that we respect the cooldown timer on new mints of any of the tokens in [0-2]
-      // @dev @note that "ids" is always a single element in our broader use-case, so ids.length == 1 always
-      // @note the cooldown logic is: If you minted token 1 (eg), then if you try to mint any token [0-2] again within
-      // the cooldown period, the mint will fail (so the cooldown is not tied to the original "trigger token")
-
-      if (from == address(0)) {
-        // a new token is being minted (could be any in [0-6])
-
-        // are we minting any of the tokens in [0-2]?
-        bool weAreMintingTokensWithCooldown = (ids[0] == 0) || (ids[0] == 1) || (ids[0] == 2);
-        if (weAreMintingTokensWithCooldown) {
-          // we are in a potential cooldown
-          // has the cooldown period passed?
-          if (paused() && block.timestamp >= cooldownTimer)
-            _unpause();  // exit cooldown
-
-          // if we are in cooldown, don't allow the mint of this token to go through
-          if (paused())
-            revert("Cannot mint! In Cooldown");
-          
-          // we are not in a cooldown
-          // but we are minting a token with a cooldown period
-          // so start the timer
-          cooldownTimer = block.timestamp + COOLDOWNPERIOD;
-          // and toggle the cooldown we just entered
-          _pause();
-          // and finally let the mint happen as this function returns
-        }
-      }
     }
 }

@@ -1,25 +1,17 @@
-import { Button, Col, Menu, Row, Modal } from "antd";
+import { Button, Modal } from "antd";
 import "antd/dist/antd.css";
 import {
   useBalance,
   useContractLoader,
-  useContractReader,
   useGasPrice,
-  useOnBlock,
   useUserProviderAndSigner,
 } from "eth-hooks";
-import { useExchangeEthPrice } from "eth-hooks/dapps/dex";
 import React, { useCallback, useEffect, useState } from "react";
 import { Link, Route, Switch, useLocation } from "react-router-dom";
 import "./App.css";
-import {
-  Account,
-  Contract,
-  Faucet,
-  Header,
-} from "./components";
+import {Account, Header} from "./components";
 
-import { NETWORKS, ALCHEMY_KEY } from "./constants";
+import { NETWORKS } from "./constants";
 import externalContracts from "./contracts/external_contracts";
 
 /****************************************************************************************
@@ -38,6 +30,7 @@ import { useStaticJsonRPC } from "./hooks";
 
 /// 📡 What chain are your contracts deployed to?
 const initialNetwork = NETWORKS.polygon; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+// const initialNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
 const DEBUG = true;
@@ -172,9 +165,6 @@ function App(props) {
     }
   }, [loadWeb3Modal]);
 
-  // make faucet available when on local network
-  const faucetAvailable = localProvider && localProvider.connection && targetNetwork.name.indexOf("local") !== -1;
-
   const connect = async () => {
 
       const ethereum = window.ethereum;
@@ -237,10 +227,7 @@ function App(props) {
         </div>
 
       </Header>
-      {/* {yourLocalBalance.lte(ethers.BigNumber.from("0")) && (
-        <FaucetHint localProvider={localProvider} targetNetwork={targetNetwork} address={address} />
-      )} */}
-
+      
         {
         NETWORKCHECK && localChainId && selectedChainId && localChainId !== selectedChainId ?
           (selectedChainId === 1337 && localChainId === 31337 ?
@@ -291,21 +278,6 @@ function App(props) {
         />
       </Route>
 
-      {/* give us a faucet: NOTE: FINE TO HAVE HERE -- WONT BE SHOWN ON NON-LOCAL NETWORKS */}
-      <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
-        <Row align="middle" gutter={[4, 4]}>
-          <Col span={24}>
-            {
-              /*  if the local provider has a signer, let's show the faucet:  */
-              faucetAvailable ? (
-                <Faucet localProvider={localProvider} />
-              ) : (
-                ""
-              )
-            }
-          </Col>
-        </Row>
-      </div>
     </div>
   );
 }

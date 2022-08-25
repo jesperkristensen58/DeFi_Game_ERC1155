@@ -2,22 +2,29 @@
 pragma solidity >=0.8.0 <0.9.0;
 
 import "./Token.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
 
-contract Forging is Ownable, Pausable {
+contract Forging {
   Token private token; // the ERC1155 collection
+
   // Weaponry we can forge:
   uint256 public constant SHIELD = 3;
   uint256 public constant CROSSBOW = 4;
   uint256 public constant ARROW = 5;
   uint256 public constant SWORD = 6;
+  mapping(address => CoolDown) public userCoolDownState;
+  uint256 public cooldownTimer;
+  uint256 public constant COOLDOWNPERIOD = 1 minutes;
 
   event Forge(address indexed account, uint256 tokenIdCreated, uint256[] tokenIdsProvided);
 
+  // Keep track of the cooldown state for a given address
+  struct CoolDown {
+    uint256 coolDownTimer;
+    bool inCoolDown;
+  }
+
   /**
    * @notice Construct the Forging Contract
-   * @dev sets the owner() as well as the deployer.
    * @param tokenAddress the token address representing the ERC1155 Token.
    */
   constructor(Token tokenAddress) {
@@ -26,9 +33,33 @@ contract Forging is Ownable, Pausable {
 
   /**
    * @notice Mint a single token of `id`.
+   * @dev note: triggers and checks the cooldown state for this address.
    * @param id the token Id to mint a single unit of.
    */
-  function mint(uint256 id) external onlyOwner {
+  function mint(uint256 id) external {
+
+      // are we minting any of the tokens in [0-2]?
+      if (id < 3) {
+        CoolDown storage cooldownState = userCoolDownState[msg.sender];
+
+        // we are in a potential cooldown
+        // has the cooldown period passed?
+        if (cooldownState.inCoolDown && block.timestamp >= cooldownState.coolDownTimer)
+          cooldownState.inCoolDown = false;  // exit cooldown
+
+        // if we are in cooldown, don't allow the mint of this token to go through
+        if (cooldownState.inCoolDown)
+          revert("Cannot mint! In Cooldown");
+        
+        // we are not in a cooldown
+        // but we are minting a token with a cooldown period
+        // so start the timer
+        cooldownState.coolDownTimer = block.timestamp + COOLDOWNPERIOD;
+        // and toggle the cooldown we just entered
+        cooldownState.inCoolDown = true;
+        // and finally let the mint happen as this function returns
+    }
+  
     token.mint(msg.sender, id, 1);
   }
 
@@ -41,7 +72,7 @@ contract Forging is Ownable, Pausable {
     return token.uri(_tokenId);
   }
 
-  function baseUri() external view onlyOwner returns (string memory) {
+  function baseUri() external view returns (string memory) {
     return token.imageUri();
   }
 
@@ -51,7 +82,7 @@ contract Forging is Ownable, Pausable {
    * @param id the token Id to get the balance of in the account.
    * @return the balance of the token id in the account.
    */
-  function balanceOf(address _of, uint256 id) external view onlyOwner returns (uint256) {
+  function balanceOf(address _of, uint256 id) external view returns (uint256) {
     return token.balanceOf(_of, id);
   }
 
@@ -61,7 +92,7 @@ contract Forging is Ownable, Pausable {
    * @param ids the token IDs in the 1155 collection to get the balances of for the respective account.
    * @return an array of balances corresponding to the incoming parameters.
    */
-  function balanceOfBatch(address[] memory accounts, uint256[] memory ids) public view onlyOwner returns (uint256[] memory)
+  function balanceOfBatch(address[] memory accounts, uint256[] memory ids) public view returns (uint256[] memory)
   {
     return token.balanceOfBatch(accounts, ids);
   }
@@ -71,7 +102,7 @@ contract Forging is Ownable, Pausable {
    * @param id the token Id to return the totalSupply of.
    * @return the totalSupply of the given token Id.
    */
-  function totalSupply(uint256 id) external view onlyOwner returns (uint256) {
+  function totalSupply(uint256 id) external view returns (uint256) {
     return token.totalSupply(id);
   }
 
@@ -82,7 +113,7 @@ contract Forging is Ownable, Pausable {
    * @param _idsToTrade the incoming ids to trade for the `_forId` token.
    * @param _forId the id to trade the incoming id to.
    */
-  function trade(uint256[] calldata _idsToTrade, uint256 _forId) external onlyOwner {
+  function trade(uint256[] calldata _idsToTrade, uint256 _forId) external {
     // first, burn the incoming tokens:
     token.burnBatch(msg.sender, _idsToTrade, _createOnesArray(_idsToTrade.length));
 
@@ -96,7 +127,7 @@ contract Forging is Ownable, Pausable {
    * @dev the outcome will be that 1 weapon has been minted.
    * @param idsToBurn the element ids to forge into weaponry.
    */
-  function forge(uint256[] calldata idsToBurn) external onlyOwner {
+  function forge(uint256[] calldata idsToBurn) external {
     uint256 _length = idsToBurn.length;
     require((_length > 1 && _length < 4), "Unexpected number of elements for forging!");
     
@@ -136,7 +167,7 @@ contract Forging is Ownable, Pausable {
    * @notice Burn a single token of type `id` from the sender.
    * @param id the id of the token to burn.
    */
-  function burn(uint256 id) external onlyOwner {
+  function burn(uint256 id) external {
     token.burn(msg.sender, id, 1);
   }
 

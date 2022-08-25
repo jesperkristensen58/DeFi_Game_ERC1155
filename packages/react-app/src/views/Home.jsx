@@ -23,7 +23,7 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
   const [checkedList, setCheckedList] = useState(defaultCheckedList);
   const [loadings, setLoadings] = useState([]);  // showing components as loading
   
-  // TODO: CHANGE THIS?
+  // TODO: CHANGE THIS? Just some address
   const anyAddress = "0x253ac99aae5ec350cb3d0274be130052f89f6b53";
   const theForgingAddress = readContracts && readContracts.Forging ? readContracts.Forging.address : anyAddress;
 
@@ -35,7 +35,6 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
     setLoadings((prevLoadings) => {
       const newLoadings = [...prevLoadings];
       newLoadings[index] = true;
-      message.loading('executing...');
       return newLoadings;
     });
   };
@@ -60,11 +59,11 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
       message.loading('Please approve protocol access to your inventory!');
 
       let result = tx(writeContracts.Token.setApprovalForAll(ethers.utils.getAddress(theForgingAddress ? theForgingAddress : anyAddress), 1), update => {
-        if (update && (update.status === "confirmed" || update.status === 1)) {
+        if (update && (currentApproval === false && (update.status === "confirmed" || update.status === 1))) {
             message.success('Approval granted!');
             currentApproval = true;
-        } else if (update && (update.status === "failed" || update.code === 4001)) {
-          message.error('Access to inventory denied!');
+        } else if (currentApproval === false && update && (update.status === "failed" || update.code === 4001)) {
+          message.error('No access to inventory!');
           currentApproval = false;
           setCheckedList(defaultCheckedList);
         }
@@ -160,7 +159,9 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
                           exitLoading(0);
                         } else if (update && (update.status === "failed" || update.code === -32603 && update.data.message.includes("Cooldown"))) {
                           message.error('Action not possible while in a cooldown!');
-
+                          exitLoading(0);
+                        } else if (update && (update.status === "failed" || update.code === 4001)) {
+                          message.error('User rejected transaction!');
                           exitLoading(0);
                         }
                       });
@@ -259,7 +260,9 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
                           exitLoading(1);
                         } else if (update && (update.status === "failed" || update.code === -32603 && update.data.message.includes("Cooldown"))) {
                           message.error('Action not possible while in a cooldown!');
-
+                          exitLoading(1);
+                        } else if (update && (update.status === "failed" || update.code === 4001)) {
+                          message.error('User rejected transaction!');
                           exitLoading(1);
                         }
                       });
@@ -360,7 +363,9 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
                           exitLoading(2);
                         } else if (update && (update.status === "failed" || update.code === -32603 && update.data.message.includes("Cooldown"))) {
                           message.error('Action not possible while in a cooldown!');
-
+                          exitLoading(2);
+                        } else if (update && (update.status === "failed" || update.code === 4001)) {
+                          message.error('User rejected transaction!');
                           exitLoading(2);
                         }
                       });
@@ -453,7 +458,7 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
           <>
           { anyTokens !== undefined && anyTokens == false ?
             <>
-            <Title level={4} style={{ color: "#FF5733", fontFamily: "futura" }}>You are out of raw materials.<br/>Mint more above.</Title>
+            <Title level={5} style={{ color: "#FF5733", fontFamily: "futura" }}>You are out of raw materials.<br/>Mint more above.</Title>
             </>
           : null
           }

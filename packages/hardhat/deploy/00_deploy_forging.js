@@ -5,9 +5,13 @@ const { ethers } = require("hardhat");
 const localChainId = "31337";
 
 module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
+
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
+  const chainId = await getChainId();
   
+  console.log("Deploying to chain id: ", chainId)
+
   // First deploy the token
   console.log("Deploying TOKEN contract...");
   console.log("Deployer account: " + deployer);
@@ -32,7 +36,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   const forging = await ethers.getContract("Forging", deployer);
   console.log("FORGING Deployed to address: " + forging.address);
 
-  console.log("Transfer ownership from deployer on Token to Contract...")
+  console.log("Transfer ownership of the Token contract from the deployer to the Forging contract...")
   await token.transferOwnership(
     forging.address
   );
@@ -40,24 +44,26 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   const ownerOfToken = await token.owner();
   console.log("Owner of the Token contract: " + ownerOfToken);
 
-  console.log("All done");
+  // // verify (if not localhost)
+  // try {
+  //   if (chainId !== localChainId) {
+  //     await run("verify:verify", {
+  //       address: token.address,
+  //       contract: "contracts/Token.sol:Token",
+  //       constructorArguments: [],
+  //     });
 
-  // console.log("Transfer ownership to metamask dev deployer account...");
-  // const forging = await ethers.getContract("Forging", deployer);
+  //     await run("verify:verify", {
+  //       address: forging.address,
+  //       contract: "contracts/Forging.sol:Forging",
+  //       constructorArguments: [token.address],
+  //     });
+  //   }
+  // } catch (error) {
+  //   console.error(error);
+  // }
 
-  // Getting a previously deployed contract
-  // const YourContract = await ethers.getContract("YourContract", deployer);
-  /*  await YourContract.setPurpose("Hello");
-  
-    // To take ownership of yourContract using the ownable library uncomment next line and add the 
-    // address you want to be the owner. 
-    
-    await YourContract.transferOwnership(
-      "ADDRESS_HERE"
-    );
-
-    //const YourContract = await ethers.getContractAt('YourContract', "0xaAC799eC2d00C013f1F11c37E654e59B0429DF6A") //<-- if you want to instantiate a version of a contract at a specific address!
-  */
+  console.log("All done!");
 
   /*
   //If you want to send value to an address from the deployer
@@ -83,20 +89,5 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   });
   */
 
-  // Verify from the command line by running `yarn verify`
-
-  // You can also Verify your contracts with Etherscan here...
-  // You don't want to verify on localhost
-  // try {
-  //   if (chainId !== localChainId) {
-  //     await run("verify:verify", {
-  //       address: YourContract.address,
-  //       contract: "contracts/YourContract.sol:YourContract",
-  //       constructorArguments: [],
-  //     });
-  //   }
-  // } catch (error) {
-  //   console.error(error);
-  // }
 };
 module.exports.tags = ["Forging"];
