@@ -36,7 +36,8 @@ Now look at `localhost:3000`, the app will spin up there.
 
 ## Deployment to Polygon
 
-First, deploy to the network of your choosing, here I chose Polygon:
+First, deploy to the network of your choosing, here I chose Polygon.
+Note: The following is an example deployment, not the final one.
 
 ```bash
 yarn deploy
