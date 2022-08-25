@@ -81,9 +81,6 @@ contract Token is ERC1155, ERC1155Burnable, ERC1155Supply, Ownable, Pausable {
 
     /**
      * @notice Helper function for now to show the NFT images on the website.
-     * @dev Images are obtained from `baseUri()` + "0.jpeg"
-     * @dev which would resolve to (eg): https://ipfs.io/ipfs/QmcWrgVBPpAURR3jjcYoBGsa1UT7trG7Ze6DfGaEvMAebm/0.jpeg
-     * @dev @TODO: Generalize this better.
      * @return the base URL on IPFS to the folder with images.
      */
     function imageUri() public pure returns (string memory) {

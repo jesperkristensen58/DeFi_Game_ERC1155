@@ -44,7 +44,7 @@ export default function Header({ link, title, subTitle, ...props }) {
             <Col flex="auto">
               <Typography>
                 <Title style={{margin: 40, color: "white", fontFamily: "futura" }}>Metana Project ERC1155 Forging</Title>          
-                <Title level={4} style={{margin: "-30px", fontFamily: "futura" }}><a href="">See Collection on OpenSea</a></Title>
+                <Title level={4} style={{margin: "-30px", fontFamily: "futura" }}><a href="https://opensea.io/collection/the-forge-of-chains">See Collection on OpenSea</a></Title>
                 <Title level={4} style={{margin: "40px", fontFamily: "futura" }}><Button primary shape="round" size="medium" danger href="https://twitter.com/cryptojesperk" icon={<TwitterCircleFilled />}>Jesper Kristensen</Button></Title>
               </Typography>
             </Col>

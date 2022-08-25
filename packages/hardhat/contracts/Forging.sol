@@ -42,7 +42,7 @@ contract Forging is Ownable, Pausable {
   }
 
   function baseUri() external view onlyOwner returns (string memory) {
-    return token.baseUri();
+    return token.imageUri();
   }
 
   /**

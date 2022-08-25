@@ -44,19 +44,19 @@ yarn deploy
   yarn run v1.22.19
   $ yarn workspace @scaffold-eth/hardhat deploy
   $ hardhat deploy --export-all ../react-app/src/contracts/hardhat_contracts.json
-  Nothing to compile
-
+  Compiling 15 files with 0.8.4
+  Compilation finished successfully
   Deploying TOKEN contract...
   Deployer account: 0x95E2A897E609bCc36dF377EEEF4163bF8fBfcceA
-  deploying "Token" (tx: 0xa6d187b95741c93687d0cd193837291aabd428df2215b8720d6ffe79a1721745)...: deployed at 0x252cD9F4652B4373485279BBc87b8C304b1bf04e with 2465818 gas
-  TOKEN Deployed to address: 0x252cD9F4652B4373485279BBc87b8C304b1bf04e
+  deploying "Token" (tx: 0x9b112ddccf3163be17b87181d8d5afbb8f34e9b85d521dbd60634ad671acff6b)...: deployed at 0xDD6b46a008f737d0a21F9c5a330bf520C312979c with 2584025 gas
+  TOKEN Deployed to address: 0xDD6b46a008f737d0a21F9c5a330bf520C312979c
   Deploying FORGING contract...
-  deploying "Forging" (tx: 0x723a18676bcfbf3bcf987dd627c036c99b2d28cd9171b5683b1276d898100881)...: deployed at 0x36AD0C50E153D09E807274e698E12573c01B1c49 with 1220606 gas
-  FORGING Deployed to address: 0x36AD0C50E153D09E807274e698E12573c01B1c49
+  deploying "Forging" (tx: 0xe44cc20514a962c064133013702722bffc02731132341e5e290dad47688a986c)...: deployed at 0x89D99019B1ee1f5A5Df99C9e8B78c7b427a16d82 with 1220606 gas
+  FORGING Deployed to address: 0x89D99019B1ee1f5A5Df99C9e8B78c7b427a16d82
   Transfer ownership from deployer on Token to Contract...
   Owner of the Token contract: 0x95E2A897E609bCc36dF377EEEF4163bF8fBfcceA
   All done
-  ✨  Done in 16.08s.
+  ✨  Done in 18.35s.
 ```
 
 Then, verify the Token and Forging contracts by running the following two commands:
@@ -64,39 +64,39 @@ Then, verify the Token and Forging contracts by running the following two comman
 First, verify the Token address:
 
 ```bash
-yarn verify 0x252cD9F4652B4373485279BBc87b8C304b1bf04e
+yarn verify 0xDD6b46a008f737d0a21F9c5a330bf520C312979c
 
   yarn run v1.22.19
-  $ yarn workspace @scaffold-eth/hardhat verify 0x252cD9F4652B4373485279BBc87b8C304b1bf04e
-  $ hardhat verify 0x252cD9F4652B4373485279BBc87b8C304b1bf04e
+  $ yarn workspace @scaffold-eth/hardhat verify 0xDD6b46a008f737d0a21F9c5a330bf520C312979c
+  $ hardhat verify 0xDD6b46a008f737d0a21F9c5a330bf520C312979c
   Nothing to compile
   Compiling 1 file with 0.8.4
   Successfully submitted source code for contract
-  contracts/Token.sol:Token at 0x252cD9F4652B4373485279BBc87b8C304b1bf04e
+  contracts/Token.sol:Token at 0xDD6b46a008f737d0a21F9c5a330bf520C312979c
   for verification on the block explorer. Waiting for verification result...
 
   Successfully verified contract Token on Etherscan.
-  https://polygonscan.com/address/0x252cD9F4652B4373485279BBc87b8C304b1bf04e#code
-  ✨  Done in 131.82s.
+  https://polygonscan.com/address/0xDD6b46a008f737d0a21F9c5a330bf520C312979c#code
+  ✨  Done in 24.74s.
 ```
 
 Then, verify the Forging address (note how I pass in the address to the token address as a constructor argument):
 
 ```bash
-yarn verify 0x36AD0C50E153D09E807274e698E12573c01B1c49 "0x252cD9F4652B4373485279BBc87b8C304b1bf04e"
+yarn verify 0x89D99019B1ee1f5A5Df99C9e8B78c7b427a16d82 "0xDD6b46a008f737d0a21F9c5a330bf520C312979c"
 
   yarn run v1.22.19
-  $ yarn workspace @scaffold-eth/hardhat verify 0x36AD0C50E153D09E807274e698E12573c01B1c49 0x252cD9F4652B4373485279BBc87b8C304b1bf04e
-  $ hardhat verify 0x36AD0C50E153D09E807274e698E12573c01B1c49 0x252cD9F4652B4373485279BBc87b8C304b1bf04e
+  $ yarn workspace @scaffold-eth/hardhat verify 0x89D99019B1ee1f5A5Df99C9e8B78c7b427a16d82 0xDD6b46a008f737d0a21F9c5a330bf520C312979c
+  $ hardhat verify 0x89D99019B1ee1f5A5Df99C9e8B78c7b427a16d82 0xDD6b46a008f737d0a21F9c5a330bf520C312979c
   Nothing to compile
   Compiling 1 file with 0.8.4
   Successfully submitted source code for contract
-  contracts/Forging.sol:Forging at 0x36AD0C50E153D09E807274e698E12573c01B1c49
+  contracts/Forging.sol:Forging at 0x89D99019B1ee1f5A5Df99C9e8B78c7b427a16d82
   for verification on the block explorer. Waiting for verification result...
 
   Successfully verified contract Forging on Etherscan.
-  https://polygonscan.com/address/0x36AD0C50E153D09E807274e698E12573c01B1c49#code
-  ✨  Done in 27.98s.
+  https://polygonscan.com/address/0x89D99019B1ee1f5A5Df99C9e8B78c7b427a16d82#code
+  ✨  Done in 40.83s.
 ```
 
 Then build the frontend with:
@@ -116,19 +116,19 @@ yarn surge
 
     Running as jespertoftkristensen@gmail.com (Student)
 
-          project: ./build
-          domain: smelly-parcel.surge.sh
-          upload: [====================] 100% eta: 0.0s (21 files, 29292434 bytes)
-              CDN: [====================] 100%
+        project: ./build
+          domain: productive-dock.surge.sh
+          upload: [====================] 100% eta: 0.0s (21 files, 29292806 bytes)
+            CDN: [====================] 100%
       encryption: *.surge.sh, surge.sh (266 days)
               IP: 138.197.235.123
 
-    Success! - Published to smelly-parcel.surge.sh
+    Success! - Published to productive-dock.surge.sh
 
-  ✨  Done in 6.78s.
+  ✨  Done in 8.15s.
 ```
 
-I got the lucky name of "smelly-parcel" for my URI.
+That is it. The website is now live at the address: <a href="productive-dock.surge.sh">productive-dock.surge.sh</a>!
 
 ## Acknowledgements
 

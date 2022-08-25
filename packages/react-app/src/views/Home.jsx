@@ -74,7 +74,7 @@ function Home({ address, readContracts, writeContracts, tx, connected }) {
   };
 
   // get the base url of the jsons for the items
-  const baseUri = useContractReader(readContracts, "Forging", "imageUri()");
+  const baseUri = useContractReader(readContracts, "Forging", "baseUri()");
   
   // do a batch call to get all token balances for this user
   const myTokens = useContractReader(readContracts, "Forging", "balanceOfBatch(address[],uint256[])",
