@@ -9,6 +9,9 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract Token is ERC1155, ERC1155Burnable, ERC1155Supply, Ownable, Pausable {
+  string public name = "The Forge of Chains";
+  string public symbol = "TFC";
+
   uint256 public cooldownTimer;
   uint256 public constant COOLDOWNPERIOD = 1 minutes;
   // Raw materials used as source in forging
@@ -67,10 +70,10 @@ contract Token is ERC1155, ERC1155Burnable, ERC1155Supply, Ownable, Pausable {
      * @param _tokenId the token ID of this collection.
      * @return the full path to the image.
      */
-    function uri(uint256 _tokenId) override public view returns (string memory) {
+    function uri(uint256 _tokenId) override public pure returns (string memory) {
       return string(
           abi.encodePacked(
-              baseUri(),
+              "https://ipfs.io/ipfs/QmTdMVgk11h5hFjp7vbnb8h8NFm1o9rQZjoBSoiDpYSDwi/",
               Strings.toString(_tokenId)
           )
       );
@@ -83,7 +86,7 @@ contract Token is ERC1155, ERC1155Burnable, ERC1155Supply, Ownable, Pausable {
      * @dev @TODO: Generalize this better.
      * @return the base URL on IPFS to the folder with images.
      */
-    function baseUri() public view onlyOwner returns (string memory) {
+    function imageUri() public pure returns (string memory) {
       return "https://ipfs.io/ipfs/QmcWrgVBPpAURR3jjcYoBGsa1UT7trG7Ze6DfGaEvMAebm/";
     }
 

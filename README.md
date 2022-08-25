@@ -34,26 +34,101 @@ yarn deploy
 
 Now look at `localhost:3000`, the app will spin up there.
 
-## Deployment to Mumbai
+## Deployment to Polygon
+
+First, deploy to the network of your choosing, here I chose Polygon:
 
 ```bash
-yarn deploy --reset
+yarn deploy
 
-  $ yarn workspace @scaffold-eth/hardhat deploy --reset
-  $ hardhat deploy --export-all ../react-app/src/contracts/hardhat_contracts.json --reset
+  yarn run v1.22.19
+  $ yarn workspace @scaffold-eth/hardhat deploy
+  $ hardhat deploy --export-all ../react-app/src/contracts/hardhat_contracts.json
   Nothing to compile
+
   Deploying TOKEN contract...
   Deployer account: 0x95E2A897E609bCc36dF377EEEF4163bF8fBfcceA
-  deploying "Token" (tx: 0xd8acd59b3183727725284b1b57bfd486ea621382abe72f133b352318e6098dc7)...: deployed at 0x252cD9F4652B4373485279BBc87b8C304b1bf04e with 2070881 gas
+  deploying "Token" (tx: 0xa6d187b95741c93687d0cd193837291aabd428df2215b8720d6ffe79a1721745)...: deployed at 0x252cD9F4652B4373485279BBc87b8C304b1bf04e with 2465818 gas
   TOKEN Deployed to address: 0x252cD9F4652B4373485279BBc87b8C304b1bf04e
   Deploying FORGING contract...
-  deploying "Forging" (tx: 0x87436dda8a55596f106d67ffdc1a055de3ee68d0616f29a81d0e875b8141506e)...: deployed at 0x36AD0C50E153D09E807274e698E12573c01B1c49 with 1052346 gas
+  deploying "Forging" (tx: 0x723a18676bcfbf3bcf987dd627c036c99b2d28cd9171b5683b1276d898100881)...: deployed at 0x36AD0C50E153D09E807274e698E12573c01B1c49 with 1220606 gas
   FORGING Deployed to address: 0x36AD0C50E153D09E807274e698E12573c01B1c49
   Transfer ownership from deployer on Token to Contract...
   Owner of the Token contract: 0x95E2A897E609bCc36dF377EEEF4163bF8fBfcceA
   All done
-  ✨  Done in 23.50s.
+  ✨  Done in 16.08s.
 ```
+
+Then, verify the Token and Forging contracts by running the following two commands:
+
+First, verify the Token address:
+
+```bash
+yarn verify 0x252cD9F4652B4373485279BBc87b8C304b1bf04e
+
+  yarn run v1.22.19
+  $ yarn workspace @scaffold-eth/hardhat verify 0x252cD9F4652B4373485279BBc87b8C304b1bf04e
+  $ hardhat verify 0x252cD9F4652B4373485279BBc87b8C304b1bf04e
+  Nothing to compile
+  Compiling 1 file with 0.8.4
+  Successfully submitted source code for contract
+  contracts/Token.sol:Token at 0x252cD9F4652B4373485279BBc87b8C304b1bf04e
+  for verification on the block explorer. Waiting for verification result...
+
+  Successfully verified contract Token on Etherscan.
+  https://polygonscan.com/address/0x252cD9F4652B4373485279BBc87b8C304b1bf04e#code
+  ✨  Done in 131.82s.
+```
+
+Then, verify the Forging address (note how I pass in the address to the token address as a constructor argument):
+
+```bash
+yarn verify 0x36AD0C50E153D09E807274e698E12573c01B1c49 "0x252cD9F4652B4373485279BBc87b8C304b1bf04e"
+
+  yarn run v1.22.19
+  $ yarn workspace @scaffold-eth/hardhat verify 0x36AD0C50E153D09E807274e698E12573c01B1c49 0x252cD9F4652B4373485279BBc87b8C304b1bf04e
+  $ hardhat verify 0x36AD0C50E153D09E807274e698E12573c01B1c49 0x252cD9F4652B4373485279BBc87b8C304b1bf04e
+  Nothing to compile
+  Compiling 1 file with 0.8.4
+  Successfully submitted source code for contract
+  contracts/Forging.sol:Forging at 0x36AD0C50E153D09E807274e698E12573c01B1c49
+  for verification on the block explorer. Waiting for verification result...
+
+  Successfully verified contract Forging on Etherscan.
+  https://polygonscan.com/address/0x36AD0C50E153D09E807274e698E12573c01B1c49#code
+  ✨  Done in 27.98s.
+```
+
+Then build the frontend with:
+
+```bash
+yarn build
+```
+
+And finally deploy the frontend with:
+
+```bash
+yarn surge
+  yarn run v1.22.19
+  $ yarn workspace @scaffold-eth/react-app surge
+  warning package.json: No license field
+  $ cp build/index.html build/200.html && surge ./build
+
+    Running as jespertoftkristensen@gmail.com (Student)
+
+          project: ./build
+          domain: smelly-parcel.surge.sh
+          upload: [====================] 100% eta: 0.0s (21 files, 29292434 bytes)
+              CDN: [====================] 100%
+      encryption: *.surge.sh, surge.sh (266 days)
+              IP: 138.197.235.123
+
+    Success! - Published to smelly-parcel.surge.sh
+
+  ✨  Done in 6.78s.
+```
+
+I got the lucky name of "smelly-parcel" for my URI.
 
 ## Acknowledgements
 

@@ -121,9 +121,9 @@ module.exports = {
       },
     },
     polygon: {
-      url: "https://polygon-rpc.com",
+      url: "https://polygon-mainnet.infura.io/v3/962443613d8f4101bb4220ad7100b258",
       // url: "https://speedy-nodes-nyc.moralis.io/XXXXXXXXXXXXXXXXXXXx/polygon/mainnet", // <---- YOUR MORALIS ID! (not limited to infura)
-      gasPrice: 3200000000,
+      gasPrice: 32000000000,
       accounts: {
         mnemonic: mnemonic(),
       },
@@ -311,7 +311,7 @@ module.exports = {
   etherscan: {
     apiKey: {
       mainnet: "DNXJA8RX2Q3VZ4URQIWP7Z68CJXQZSC6AW",
-      polygonMumbai: "ITT881TGUTA3EDCK22HMBTKEY9IUV79SJ3"
+      polygon: "ITT881TGUTA3EDCK22HMBTKEY9IUV79SJ3"
     },
   },
   abiExporter: {
