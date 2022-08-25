@@ -18,7 +18,8 @@ const { isAddress, getAddress, formatUnits, parseUnits } = utils;
 //
 // Select the network you want to deploy to here:
 //
-const defaultNetwork = "localhost";
+// const defaultNetwork = "localhost";
+const defaultNetwork = "polygon";
 
 const mainnetGwei = 21;
 
@@ -128,7 +129,8 @@ module.exports = {
       },
     },
     mumbai: {
-      url: "https://rpc-mumbai.maticvigil.com",
+      url: "https://polygon-mumbai.infura.io/v3/798dbb3498214fb2813e9f70638abf9d",
+      // url: "https://rpc-mumbai.maticvigil.com",
       // url: "https://speedy-nodes-nyc.moralis.io/XXXXXXXXXXXXXXXXXXXXXXX/polygon/mumbai", // <---- YOUR MORALIS ID! (not limited to infura)
       gasPrice: 3200000000,
       accounts: {
@@ -283,7 +285,7 @@ module.exports = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 200,
+            runs: 10000,
           },
         },
       },
@@ -292,7 +294,7 @@ module.exports = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 200,
+            runs: 10000,
           },
         },
       },
@@ -309,7 +311,7 @@ module.exports = {
   etherscan: {
     apiKey: {
       mainnet: "DNXJA8RX2Q3VZ4URQIWP7Z68CJXQZSC6AW",
-      // add other network's API key here
+      polygonMumbai: "ITT881TGUTA3EDCK22HMBTKEY9IUV79SJ3"
     },
   },
   abiExporter: {

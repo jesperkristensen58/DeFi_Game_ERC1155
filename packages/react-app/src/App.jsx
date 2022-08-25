@@ -37,7 +37,7 @@ import { useStaticJsonRPC } from "./hooks";
  const { ethers } = require("ethers");
 
 /// 📡 What chain are your contracts deployed to?
-const initialNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const initialNetwork = NETWORKS.polygon; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
 const DEBUG = true;
@@ -52,7 +52,7 @@ const web3Modal = Web3ModalSetup();
 function App(props) {
   // specify all the chains the app is available on. Eg: ['localhost', 'mainnet', ...otherNetworks ]
   // reference './constants.js' for other networks
-  const networkOptions = [initialNetwork.name, "mumbai"];
+  const networkOptions = [initialNetwork.name];
 
   /****************************************************************************************
   *  DEFINE STATE

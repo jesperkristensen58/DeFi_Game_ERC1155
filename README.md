@@ -34,6 +34,27 @@ yarn deploy
 
 Now look at `localhost:3000`, the app will spin up there.
 
+## Deployment to Mumbai
+
+```bash
+yarn deploy --reset
+
+  $ yarn workspace @scaffold-eth/hardhat deploy --reset
+  $ hardhat deploy --export-all ../react-app/src/contracts/hardhat_contracts.json --reset
+  Nothing to compile
+  Deploying TOKEN contract...
+  Deployer account: 0x95E2A897E609bCc36dF377EEEF4163bF8fBfcceA
+  deploying "Token" (tx: 0xd8acd59b3183727725284b1b57bfd486ea621382abe72f133b352318e6098dc7)...: deployed at 0x252cD9F4652B4373485279BBc87b8C304b1bf04e with 2070881 gas
+  TOKEN Deployed to address: 0x252cD9F4652B4373485279BBc87b8C304b1bf04e
+  Deploying FORGING contract...
+  deploying "Forging" (tx: 0x87436dda8a55596f106d67ffdc1a055de3ee68d0616f29a81d0e875b8141506e)...: deployed at 0x36AD0C50E153D09E807274e698E12573c01B1c49 with 1052346 gas
+  FORGING Deployed to address: 0x36AD0C50E153D09E807274e698E12573c01B1c49
+  Transfer ownership from deployer on Token to Contract...
+  Owner of the Token contract: 0x95E2A897E609bCc36dF377EEEF4163bF8fBfcceA
+  All done
+  ✨  Done in 23.50s.
+```
+
 ## Acknowledgements
 
 This project is built on Scaffold-ETH, see this link: https://github.com/scaffold-eth/scaffold-eth
