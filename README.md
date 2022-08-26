@@ -143,6 +143,7 @@ It was a great experience and I learned a ton building it! Shoutout to the Scaff
 ## Contact
 [![Twitter URL](https://img.shields.io/twitter/url/https/twitter.com/cryptojesperk.svg?style=social&label=Follow%20%40cryptojesperk)](https://twitter.com/cryptojesperk)
 
+Reach out with questions or comments!
 
 ## License
 This project uses the following license: [MIT](https://github.com/bisguzar/twitter-scraper/blob/master/LICENSE).
