@@ -1,0 +1,7 @@
+{
+    "solidity.compilerOptimization": 10000,
+    "solidity.defaultCompiler": "localNodeModule",
+    "solidity.remappings": [
+        "@openzeppelin/=packages/hardhat/node_modules/@openzeppelin/"
+    ]
+}
