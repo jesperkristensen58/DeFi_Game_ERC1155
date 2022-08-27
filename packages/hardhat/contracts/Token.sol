@@ -9,9 +9,9 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract Token is ERC1155, ERC1155Burnable, ERC1155Supply, Ownable {
-  string public name = "The Forge of Chains";
-  string public symbol = "TFC";
-  string public constant imageUri = "https://ipfs.io/ipfs/QmcWrgVBPpAURR3jjcYoBGsa1UT7trG7Ze6DfGaEvMAebm/";
+  string public constant name = "The Forge of Chains";
+  string public constant symbol = "TFC";
+  string public constant IMAGE_URI = "https://ipfs.io/ipfs/QmcWrgVBPpAURR3jjcYoBGsa1UT7trG7Ze6DfGaEvMAebm/";
 
   // Raw materials used as source in forging
   uint256 public constant IRON = 0;
@@ -26,12 +26,12 @@ contract Token is ERC1155, ERC1155Burnable, ERC1155Supply, Ownable {
 
   /**
    * @notice Mint `amount` unit of tokens of type `id` to the addres `to`.
-   * @param _to the address to mint the tokens to.
+   * @param to the address to mint the tokens to.
    * @param id the token id to mint.
    * @param amount the amount of tokens to mint.
    */
-  function mint(address _to, uint256 id, uint256 amount) public onlyOwner {
-    _mint(_to, id, amount, "");
+  function mint(address to, uint256 id, uint256 amount) external onlyOwner {
+    _mint(to, id, amount, "");
   }
 
   /**
@@ -65,14 +65,14 @@ contract Token is ERC1155, ERC1155Burnable, ERC1155Supply, Ownable {
 
     /**
      * @notice Implemented for this ERC1155 collection to be compatible with OpenSea.
-     * @param _tokenId the token ID of this collection.
+     * @param tokenId the token ID of this collection.
      * @return the full path to the image.
      */
-    function uri(uint256 _tokenId) override public pure returns (string memory) {
+    function uri(uint256 tokenId) override public pure returns (string memory) {
       return string(
           abi.encodePacked(
               "https://ipfs.io/ipfs/QmTdMVgk11h5hFjp7vbnb8h8NFm1o9rQZjoBSoiDpYSDwi/",
-              Strings.toString(_tokenId)
+              Strings.toString(tokenId)
           )
       );
     }

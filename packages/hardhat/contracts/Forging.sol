@@ -12,14 +12,13 @@ contract Forging {
   uint256 public constant ARROW = 5;
   uint256 public constant SWORD = 6;
   mapping(address => CoolDown) public userCoolDownState;
-  uint256 public cooldownTimer;
   uint256 public constant COOLDOWNPERIOD = 1 minutes;
 
   event Forge(address indexed account, uint256 tokenIdCreated, uint256[] tokenIdsProvided);
 
   // Keep track of the cooldown state for a given address
   struct CoolDown {
-    uint256 coolDownTimer;
+    uint256 cooldowntimer;
     bool inCoolDown;
   }
 
@@ -44,7 +43,7 @@ contract Forging {
 
         // we are in a potential cooldown
         // has the cooldown period passed?
-        if (cooldownState.inCoolDown && block.timestamp >= cooldownState.coolDownTimer)
+        if (cooldownState.inCoolDown && block.timestamp >= cooldownState.cooldowntimer)
           cooldownState.inCoolDown = false;  // exit cooldown
 
         // if we are in cooldown, don't allow the mint of this token to go through
@@ -54,7 +53,7 @@ contract Forging {
         // we are not in a cooldown
         // but we are minting a token with a cooldown period
         // so start the timer
-        cooldownState.coolDownTimer = block.timestamp + COOLDOWNPERIOD;
+        cooldownState.cooldowntimer = block.timestamp + COOLDOWNPERIOD;
         // and toggle the cooldown we just entered
         cooldownState.inCoolDown = true;
         // and finally let the mint happen as this function returns
@@ -65,25 +64,25 @@ contract Forging {
 
   /**
    * @notice Get the metadata uri for any token type from the collection.
-   * @param _tokenId the token ID to get the uri for.
+   * @param tokenId the token ID to get the uri for.
    * @return the base URI for the collection.
    */
-  function uri(uint256 _tokenId) public view returns (string memory) {
-    return token.uri(_tokenId);
+  function uri(uint256 tokenId) external view returns (string memory) {
+    return token.uri(tokenId);
   }
 
   function baseUri() external view returns (string memory) {
-    return token.imageUri();
+    return token.IMAGE_URI();
   }
 
   /**
    * @notice the balance of the token `id` in the `account`.
-   * @param _of the account to get the balance of.
+   * @param ofAddress the account to get the balance of.
    * @param id the token Id to get the balance of in the account.
    * @return the balance of the token id in the account.
    */
-  function balanceOf(address _of, uint256 id) external view returns (uint256) {
-    return token.balanceOf(_of, id);
+  function balanceOf(address ofAddress, uint256 id) external view returns (uint256) {
+    return token.balanceOf(ofAddress, id);
   }
 
   /**
@@ -92,7 +91,7 @@ contract Forging {
    * @param ids the token IDs in the 1155 collection to get the balances of for the respective account.
    * @return an array of balances corresponding to the incoming parameters.
    */
-  function balanceOfBatch(address[] memory accounts, uint256[] memory ids) public view returns (uint256[] memory)
+  function balanceOfBatch(address[] memory accounts, uint256[] memory ids) external view returns (uint256[] memory)
   {
     return token.balanceOfBatch(accounts, ids);
   }
@@ -107,19 +106,19 @@ contract Forging {
   }
 
   /**
-   * @notice trade incoming token types (`_idsToTrade`) to the destination id `_forId`.
-   * @notice example: you can trade tokens [0, 1] (_idsToTrade=[0, 1]) for two token 2's (_forId=2).
-   * @dev Note Calling condition: The frontend ensures that `_forId` is not in `_idsToTrade`.
-   * @param _idsToTrade the incoming ids to trade for the `_forId` token.
-   * @param _forId the id to trade the incoming id to.
+   * @notice trade incoming token types (`idsToTrade`) to the destination id `forId`.
+   * @notice example: you can trade tokens [0, 1] (idsToTrade=[0, 1]) for two token 2's (forId=2).
+   * @dev Note Calling condition: The frontend ensures that `forId` is not in `idsToTrade`.
+   * @param idsToTrade the incoming ids to trade for the `forId` token.
+   * @param forId the id to trade the incoming id to.
    */
-  function trade(uint256[] calldata _idsToTrade, uint256 _forId) external {
+  function trade(uint256[] calldata idsToTrade, uint256 forId) external {
     // first, burn the incoming tokens:
-    token.burnBatch(msg.sender, _idsToTrade, _createOnesArray(_idsToTrade.length));
+    token.burnBatch(msg.sender, idsToTrade, _createOnesArray(idsToTrade.length));
 
     // then, mint the new _forId tokens same amount as came in
     // example: so swap 1 iron *and* 1 carbon for a total of 2 wood)
-    token.mint(msg.sender, _forId, _idsToTrade.length);
+    token.mint(msg.sender, forId, idsToTrade.length);
   }
 
   /**
@@ -155,12 +154,12 @@ contract Forging {
       }
     }
 
+    emit Forge(msg.sender, tokenIdToMint, idsToBurn);
+
     // we trade the incoming Ids by burning them (always 1 of each):
     token.burnBatch(msg.sender, idsToBurn, _createOnesArray(_length));
     // and then subsequently minting the resulting Id (the weapon, in this case):
     token.mint(msg.sender, tokenIdToMint, 1);
-
-    emit Forge(msg.sender, tokenIdToMint, idsToBurn);
   }
 
   /**
@@ -177,7 +176,7 @@ contract Forging {
    * @return theSum the sum of the incoming array's elements.
    */
   function _sum(uint256[] calldata arr) private pure returns (uint256 theSum) {
-    for (uint256 i; i < arr.length; i++)
+    for (uint256 i = 0; i < arr.length; i++)
       theSum += arr[i];
   }
 
@@ -188,7 +187,7 @@ contract Forging {
    */
   function _createOnesArray(uint256 arrLen) private pure returns(uint256[] memory) {
     uint256[] memory ones = new uint256[](arrLen);
-    for (uint256 i; i < arrLen; i++)
+    for (uint256 i = 0; i < arrLen; i++)
       ones[i] = 1;
     return ones;
   }

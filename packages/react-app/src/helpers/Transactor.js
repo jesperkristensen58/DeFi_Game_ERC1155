@@ -1,7 +1,7 @@
 import { notification } from "antd";
 import Notify from "bnc-notify";
 import { BLOCKNATIVE_DAPPID } from "../constants";
-import { SmileOutlined } from '@ant-design/icons';
+import { SmileOutlined } from "@ant-design/icons";
 
 const { ethers } = require("ethers");
 
@@ -25,7 +25,6 @@ export default function Transactor(providerOrSigner, gasPrice, etherscan) {
       network = providerOrSigner.provider && (await providerOrSigner.provider.getNetwork());
 
       if (network !== undefined) {
-
         console.log("network", network);
         var options = null;
         var notify = null;
@@ -90,12 +89,12 @@ export default function Transactor(providerOrSigner, gasPrice, etherscan) {
               icon: (
                 <SmileOutlined
                   style={{
-                    color: '#108ee9',
+                    color: "#108ee9",
                   }}
                 />
-              )
+              ),
             });
-            
+
             // on most networks BlockNative will update a transaction handler,
             // but locally we will set an interval to listen...
             if (callback) {

@@ -4,7 +4,6 @@ import { useBalance } from "eth-hooks";
 const { utils } = require("ethers");
 
 export default function Balance(props) {
-
   const balance = useBalance(props.provider, props.address);
   let floatBalance = parseFloat("0.00");
   let usingBalance = balance;
@@ -31,7 +30,7 @@ export default function Balance(props) {
         verticalAlign: "middle",
         fontSize: props.size,
         color: "white",
-        fontFamily: "futura"
+        fontFamily: "futura",
       }}
     >
       {balanceToShow}
