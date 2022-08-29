@@ -2,6 +2,7 @@ require("dotenv").config();
 const { utils } = require("ethers");
 const fs = require("fs");
 const chalk = require("chalk");
+require('solidity-coverage');
 
 require("@nomiclabs/hardhat-waffle");
 require("@tenderly/hardhat-tenderly");
