@@ -2,15 +2,13 @@
 require('dotenv').config();
 const { ethers } = require("hardhat");
 
-const localChainId = "31337";
-
 module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
 
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
   const chainId = await getChainId();
   
-  console.log("Deploying to chain id: ", chainId)
+  console.log("Deploying to chain id: ", chainId);
 
   // First deploy the token
   console.log("Deploying TOKEN contract...");
@@ -36,7 +34,9 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   const forging = await ethers.getContract("Forging", deployer);
   console.log("FORGING Deployed to address: " + forging.address);
 
-  console.log("Transfer ownership of the Token contract from the deployer to the Forging contract...")
+  console.log(
+    "Transfer ownership of the Token contract from the deployer to the Forging contract..."
+  );
   await token.transferOwnership(
     forging.address
   );
